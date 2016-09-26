@@ -1,0 +1,20 @@
+# Ignore any file in this directory except for *.foo files
+
+*
+!.gitignore
+!*.js
+!*.html
+!*.css
+!*.jpg
+!*.jpeg
+!*.gif
+!*.png
+!*.txt
+!*.mp4
+
+!models/*
+!fig/*
+!debug/*
+
+# Don't ignore directories, so we can recurse into them
+!*/
