@@ -26,7 +26,8 @@ function initShaderParameters(prg) {
 
 function initBuffers() {
     //createCheckBoard(8);
-    triangleFractal();
+    //triangleFractal();
+    triangleCeption();
 
     //DEBUG HELP
     if(vertices.length != (colors.length - (vertices.length/3))){
@@ -79,9 +80,37 @@ function triangleFractal() {
     }
 }
 
+function triangleCeption() {
+    vertices.push(-1.0, -1.0, 0.0);
+    vertices.push(1.0, -1.0, 0.0);
+    vertices.push(0.0, 1.0, 0.0);
+    colors.push(0.0, 0.0, 1.0, 1.0);
+    colors.push(0.0, 0.0, 1.0, 1.0);
+    colors.push(0.0, 0.0, 1.0, 1.0);
+
+    for(var i = 1; i<= 100; i++) {
+        var Apoint = [vertices[9*i-9], vertices[9*i-8], vertices[9*i-7]];
+        var Bpoint = [vertices[9*i-6], vertices[9*i-5], vertices[9*i-4]];
+        var Cpoint = [vertices[9*i-3], vertices[9*i-2], vertices[9*i-1]];
+        var newA = midPoint(Apoint, Bpoint, 10);
+        var newB = midPoint(Bpoint, Cpoint, 10);
+        var newC = midPoint(Cpoint, Apoint, 10);
+        vertices.push(newA[0], newA[1], newA[2]-(0.1));
+        vertices.push(newB[0], newB[1], newB[2]-(0.1));
+        vertices.push(newC[0], newC[1], newC[2]-(0.1));
+
+        colors.push(0.0, 0.0, 1.0, 1.0 / i);
+        colors.push(0.0, 0.0, 1.0, 1.0 / i);
+        colors.push(0.0, 0.0, 1.0, 1.0 / i);
+
+        indices.push(i-1);
+    }
+}
+
 function midPoint(A, B, portion)
 {
-    return [(A[0] + B[0])/portion, (A[1] + B[1])/portion, (A[2] + B[2])/portion];
+    var ABVector = [(B[0] - A[0]), (B[1] - A[1]), (B[2] - A[2])];
+    return [(A[0] + ABVector[0]/portion), (A[1] + ABVector[1]/portion), (A[2] + ABVector[2]/portion)];
 }
 
 function createCheckBoard(numberOfSquaresBySide) {
