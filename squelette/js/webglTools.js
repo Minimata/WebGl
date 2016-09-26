@@ -57,7 +57,8 @@ function initProgram() {
 }
 
 
-function beginRenderLoop(fps) {
+function renderLoop(fps) {
+    if(!fps) fps = 60.0;
     var framerate = 1000.0 / fps;
     refreshTimer = setInterval(function () {
         if (window.requestAnimationFrame ||

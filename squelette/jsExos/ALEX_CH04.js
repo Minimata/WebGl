@@ -148,7 +148,7 @@ function initWebGL() {
         glContext = getGLContext('webgl-canvas');
         initProgram();
         initBuffers();
-        beginRenderLoop(60.0);
+        renderLoop(60.0);
     }
     catch (e) {
         console.log(e);
