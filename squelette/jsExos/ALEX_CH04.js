@@ -12,16 +12,16 @@ var colors = [];
 
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
+var translationMat = mat4.create();
+var vector3 = vec3.create();
 
 var withPerspective = true;
 var rotationAroundZ = 0;
-var indexCounter = 0;
 
 window.onload = displayTitle("Ch04_ex1");
 
 function cameraGiggle() {
     rotationAroundZ += 0.1;
-    indexCounter++;
     requestAnimationFrame(cameraGiggle);
 }
 
@@ -50,7 +50,7 @@ function initBuffers() {
     indexBuffer = getIndexBufferWithIndices(indices);
 }
 
-function triangleCeption(numberOfTriangles, ecart) {
+function triangleCeption(numberOfTriangles, triangleDisplacement) {
     vertices.push(-1.0, -1.0, 0.0);
     vertices.push(1.0, -1.0, 0.0);
     vertices.push(0.0, 1.0, 0.0);
@@ -60,14 +60,14 @@ function triangleCeption(numberOfTriangles, ecart) {
     indices.push(0, 1, 2);
 
     if(!numberOfTriangles || numberOfTriangles <= 0) numberOfTriangles = 10;
-    if(!ecart || ecart <= 0) ecart = 10;
+    if(!triangleDisplacement || triangleDisplacement <= 0) triangleDisplacement = 10;
     for (var i = 1; i <= numberOfTriangles; i++) {
         var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
         var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
         var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
-        var newA = midPoint(Apoint, Bpoint, ecart);
-        var newB = midPoint(Bpoint, Cpoint, ecart);
-        var newC = midPoint(Cpoint, Apoint, ecart);
+        var newA = midPoint(Apoint, Bpoint, triangleDisplacement);
+        var newB = midPoint(Bpoint, Cpoint, triangleDisplacement);
+        var newC = midPoint(Cpoint, Apoint, triangleDisplacement);
         vertices.push(newA[0], newA[1], -(i*0.1));
         vertices.push(newB[0], newB[1], -(i*0.1));
         vertices.push(newC[0], newC[1], -(i*0.1));
@@ -133,8 +133,6 @@ function drawScene() {
 
     mat4.identity(pMatrix);
     mat4.identity(mvMatrix);
-    translationMat = mat4.create();
-    var vector3 = vec3.create();
     vec3.set(vector3, 0, 0, 0);
 
     if (withPerspective) {
