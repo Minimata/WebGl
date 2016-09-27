@@ -38,8 +38,7 @@ function initShaderParameters(prg) {
 
 function initBuffers() {
     //createCheckBoard(8);
-    //triangleFractal();
-    triangleCeption();
+    triangleCeption(10, 10);
 
     //DEBUG HELP
     if (vertices.length != (colors.length - (vertices.length / 3))) {
@@ -51,50 +50,7 @@ function initBuffers() {
     indexBuffer = getIndexBufferWithIndices(indices);
 }
 
-function triangleFractal() {
-    vertices.push(-1.0, -1.0, 0.0);
-    vertices.push(1.0, -1.0, 0.0);
-    vertices.push(0.0, 1.0, 0.0);
-    colors.push(1.0, 0.0, 0.0, 1.0);
-    colors.push(0.0, 1.0, 0.0, 1.0);
-    colors.push(0.0, 0.0, 1.0, 1.0);
-
-    for (var i = 1; i <= 100; i++) {
-        var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
-        var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
-        var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
-        var newA = midPoint(Apoint, Bpoint, 2);
-        var newB = midPoint(Bpoint, Cpoint, 2);
-        var newC = midPoint(Cpoint, Apoint, 2);
-        vertices.push(newA[0], newA[1], newA[2] - (0.1));
-        vertices.push(newB[0], newB[1], newB[2] - (0.1));
-        vertices.push(newC[0], newC[1], newC[2] - (0.1));
-
-        var x = i % 3, y = (i + 1) % 3, z = (i + 2) % 3;
-        if (x == 1) {
-            y = 0;
-            z = 0;
-        }
-        else if (y == 1) {
-            x = 0;
-            z = 0;
-        }
-        else if (z == 1) {
-            x = 0;
-            y = 0;
-        }
-
-        colors.push(x, y, z, 1.0);
-        colors.push(z, x, y, 1.0);
-        colors.push(y, z, x, 1.0);
-
-        indices.push(i - 1);
-    }
-
-    cameraGiggle();
-}
-
-function triangleCeption(numberOfTriangles) {
+function triangleCeption(numberOfTriangles, ecart) {
     vertices.push(-1.0, -1.0, 0.0);
     vertices.push(1.0, -1.0, 0.0);
     vertices.push(0.0, 1.0, 0.0);
@@ -103,21 +59,22 @@ function triangleCeption(numberOfTriangles) {
     colors.push(0.0, 0.0, 1.0, 1.0);
     indices.push(0, 1, 2);
 
-    if(!numberOfTriangles) numberOfTriangles = 10;
+    if(!numberOfTriangles || numberOfTriangles <= 0) numberOfTriangles = 10;
+    if(!ecart || ecart <= 0) ecart = 10;
     for (var i = 1; i <= numberOfTriangles; i++) {
         var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
         var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
         var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
-        var newA = midPoint(Apoint, Bpoint, 10);
-        var newB = midPoint(Bpoint, Cpoint, 10);
-        var newC = midPoint(Cpoint, Apoint, 10);
+        var newA = midPoint(Apoint, Bpoint, ecart);
+        var newB = midPoint(Bpoint, Cpoint, ecart);
+        var newC = midPoint(Cpoint, Apoint, ecart);
         vertices.push(newA[0], newA[1], -(i*0.1));
         vertices.push(newB[0], newB[1], -(i*0.1));
         vertices.push(newC[0], newC[1], -(i*0.1));
 
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
+        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
+        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
+        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
 
         indices.push(3*i, 3*i + 1, 3*i + 2);
     }
@@ -176,24 +133,23 @@ function drawScene() {
 
     mat4.identity(pMatrix);
     mat4.identity(mvMatrix);
+    translationMat = mat4.create();
+    var vector3 = vec3.create();
+    vec3.set(vector3, 0, 0, 0);
 
     if (withPerspective) {
         mat4.perspective(pMatrix, degToRad(60), c_width / c_height, 0.1, 10000);
         b = 0.1 * Math.cos(rotationAroundZ);
         a = 0.1 * Math.sin(rotationAroundZ);
         c = -2;
-        translationMat = mat4.create();
+        vec3.set(vector3, b, a, c);
         mat4.identity(translationMat);
-        mat4.translate(translationMat, translationMat, [b, a, c]);
+        mat4.translate(translationMat, translationMat, vector3);
         mat4.multiply(mvMatrix, translationMat, mvMatrix);
         mvMatrix = mat4.rotateY(mvMatrix, mvMatrix, Math.PI);
     } else {
-        b = 0.1 * Math.cos(rotationAroundZ);
-        a = 0.1 * Math.sin(rotationAroundZ);
-        c = 0;
-        translationMat = mat4.create();
         mat4.identity(translationMat);
-        mat4.translate(translationMat, translationMat, [b, a, c]);
+        mat4.translate(translationMat, translationMat, vector3);
         mat4.multiply(mvMatrix, translationMat, mvMatrix);
     }
 
