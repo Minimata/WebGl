@@ -16,13 +16,20 @@ var translationMat = mat4.create();
 var vector3 = vec3.create();
 
 var withPerspective = true;
-var rotationAroundZ = 0;
+var rotationAroundZ = 0, displacement = 1;
 
 window.onload = displayTitle("Ch04_ex1");
 
 function cameraGiggle() {
     rotationAroundZ += 0.1;
     requestAnimationFrame(cameraGiggle);
+}
+
+function increaseTriangleDisplacement() {
+    displacement += 0.02;
+    console.log(displacement);
+    if(displacement >= 18) displacement = 1;
+    requestAnimationFrame(increaseTriangleDisplacement);
 }
 
 function initShaderParameters(prg) {
@@ -38,7 +45,12 @@ function initShaderParameters(prg) {
 
 function initBuffers() {
     //createCheckBoard(8);
-    triangleCeption(10, 10);
+    //triangleCeption(10, 10);
+
+    vertices = [];
+    colors = [];
+    indices = [];
+    triangleCeption(10, displacement);
 
     //DEBUG HELP
     if (vertices.length != (colors.length - (vertices.length / 3))) {
@@ -78,8 +90,6 @@ function triangleCeption(numberOfTriangles, triangleDisplacement) {
 
         indices.push(3*i, 3*i + 1, 3*i + 2);
     }
-
-    cameraGiggle();
 }
 
 function midPoint(A, B, portion) {
@@ -125,6 +135,8 @@ function createSquare(botLeftX, botLeftY, size) {
 }
 
 function drawScene() {
+    initBuffers(); //This is for animated triangle shaping.
+
     var a, b, c;
     glContext.clearColor(0.9, 0.9, 0.9, 1.0);
     glContext.enable(glContext.DEPTH_TEST);
@@ -169,6 +181,8 @@ function initWebGL() {
         glContext = getGLContext('webgl-canvas');
         initProgram();
         initBuffers();
+        increaseTriangleDisplacement(); //for animated triangle shaping
+        cameraGiggle(); //to see the perspective
         renderLoop();
     }
     catch (e) {

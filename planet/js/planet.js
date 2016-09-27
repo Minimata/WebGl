@@ -73,7 +73,7 @@ Planet.prototype.init = function()
 	//Defines the position matrix of the object
 	mat4.identity(this.mvMatrix); 
 	mat4.translate(this.mvMatrix, this.mvMatrix, vec3.fromValues(this.x, this.y, 0.0)); 	
-}
+};
 //Draw method of the planet object
 Planet.prototype.draw = function()
 {
@@ -88,14 +88,12 @@ Planet.prototype.draw = function()
 	//Links the indexBuffer with the shader
 	glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 	//Based on the render variable
-	if(render)
-	{
+	if(render) {
 		//Renders the objet as a wireframe
 		glContext.drawElements(glContext.LINES, this.indices.length, glContext.UNSIGNED_SHORT,0);
 	}
-	else
-	{
+	else {
 		//Renders the object as triangles
 		glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT,0);
 	}
-}
+};
