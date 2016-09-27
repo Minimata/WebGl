@@ -101,8 +101,10 @@ function triangleCeption(numberOfTriangles) {
     colors.push(0.0, 0.0, 1.0, 1.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
+    indices.push(0, 1, 2);
 
-    for (var i = 1; i <= 30; i++) {
+    if(!numberOfTriangles) numberOfTriangles = 10;
+    for (var i = 1; i <= numberOfTriangles; i++) {
         var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
         var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
         var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
@@ -117,7 +119,7 @@ function triangleCeption(numberOfTriangles) {
         colors.push(0.0, 0.0, 1.0, 1.0 / i);
         colors.push(0.0, 0.0, 1.0, 1.0 / i);
 
-        indices.push(i - 1);
+        indices.push(3*i, 3*i + 1, 3*i + 2);
     }
 
     cameraGiggle();
