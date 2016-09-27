@@ -56,7 +56,6 @@ function initProgram() {
     initShaderParameters(prg);
 }
 
-
 function renderLoop() {
     drawScene();
     refreshTimer = requestAnimationFrame(renderLoop);

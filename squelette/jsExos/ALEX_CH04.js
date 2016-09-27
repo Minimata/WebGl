@@ -27,7 +27,6 @@ function cameraGiggle() {
 
 function increaseTriangleDisplacement() {
     displacement += 0.02;
-    console.log(displacement);
     if(displacement >= 18) displacement = 1;
     requestAnimationFrame(increaseTriangleDisplacement);
 }
@@ -62,7 +61,7 @@ function initBuffers() {
     indexBuffer = getIndexBufferWithIndices(indices);
 }
 
-function triangleCeption(numberOfTriangles, triangleDisplacement) {
+function triangleCeption(numberOfTriangles = 10, triangleDisplacement = 10) {
     vertices.push(-1.0, -1.0, 0.0);
     vertices.push(1.0, -1.0, 0.0);
     vertices.push(0.0, 1.0, 0.0);
@@ -71,9 +70,7 @@ function triangleCeption(numberOfTriangles, triangleDisplacement) {
     colors.push(0.0, 0.0, 1.0, 1.0);
     indices.push(0, 1, 2);
 
-    if(!numberOfTriangles || numberOfTriangles <= 0) numberOfTriangles = 10;
-    if(!triangleDisplacement || triangleDisplacement <= 0) triangleDisplacement = 10;
-    for (var i = 1; i <= numberOfTriangles; i++) {
+    for (let i = 1; i <= numberOfTriangles; i++) {
         var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
         var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
         var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
@@ -100,20 +97,17 @@ function midPoint(A, B, portion) {
 function createCheckBoard(numberOfSquaresBySide) {
     var squareSize = 2.0 / numberOfSquaresBySide;
     var posX = -1.0, posY = -1.0;
-    for (var numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++) {
+
+    for (let numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++) {
         posY = -1.0;
-        for (var numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++) {
-            if (((numSquareX + numSquareY) % 2) == 0) {
-                createSquare(posX, posY, squareSize);
-            }
+        for (let numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++) {
+            if (((numSquareX + numSquareY) % 2) == 0) createSquare(posX, posY, squareSize);
             posY += squareSize;
         }
         posX += squareSize;
     }
 
-    for (var i = 0; i < vertices.length / 3; i++) {
-        indices.push(i);
-    }
+    for (var i = 0; i < vertices.length / 3; i++) indices.push(i);
 }
 
 function createSquare(botLeftX, botLeftY, size) {

@@ -63,19 +63,19 @@ function rotateModelViewMatrixUsingQuaternion(stop) {
      myQuaternion = quat4.multiply(rotYQuat, rotXQuat);
      mvMatrix = mat4.multiply(quat4.toMat4( myQuaternion ), mvMatrix);
      */
-    rx = degToRad(rotX);
-    ry = degToRad(rotY);
+    var rx = degToRad(rotX);
+    var ry = degToRad(rotY);
 
-    rotXQuat = quat.create();
+    var rotXQuat = quat.create();
     quat.setAxisAngle(rotXQuat, [1, 0, 0], rx);
 
-    rotYQuat = quat.create();
+    var rotYQuat = quat.create();
     quat.setAxisAngle(rotYQuat, [0, 1, 0], ry);
 
-    myQuaternion = quat.create();
+    var myQuaternion = quat.create();
     quat.multiply(myQuaternion, rotYQuat, rotXQuat);
 
-    rotationMatrix = mat4.create();
+    var rotationMatrix = mat4.create();
     mat4.identity(rotationMatrix);
     mat4.fromQuat(rotationMatrix, myQuaternion);
     mat4.multiply(mvMatrix, rotationMatrix, mvMatrix);

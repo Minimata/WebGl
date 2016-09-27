@@ -16,8 +16,7 @@ function changeRender(){
 }
 
 //Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader. 
-function initShaderParameters(prg)
-{
+function initShaderParameters(prg) {
 	//Linking of the attribute "vertex position"
     prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
 	glContext.enableVertexAttribArray(prg.vertexPositionAttribute);
@@ -31,8 +30,7 @@ function initShaderParameters(prg)
 }
 
 //Initialisation of the scene
-function initScene()
-{
+function initScene() {
     //Creation of the earth instance
 	sceneObjects.push(new Planet("Earth", 0.5, {r:0.14,g:0.29,b:0.65}, 0.0,0.0));
 	//Creation of the moon instance
@@ -50,36 +48,36 @@ function initScene()
 	glContext.enable(glContext.DEPTH_TEST);
 	//Sets the color black for the clear of the scene
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
-		
-	//Starting the render loop
-	renderLoop();
 }
 
 //Draw scene method called when the render loop is started
-function drawScene()
-{
-	
+function drawScene() {
 	//Clearing the previous render based on color and depth
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 	
-	
 	//Calling draw for each object in our scene
-	for(var i= 0;i<sceneObjects.length;i++)
-	{
+	for(let i= 0;i<sceneObjects.length;i++) {
 		sceneObjects[i].draw();
 	}
-
-	
 }
 
 //Initialisation of the webgl context
-function initWebGL()
-{
-	//Initilisation on the canvas "webgl-canvas"
-    glContext = getGLContext('webgl-canvas');
-	//Initialisation of the programme
-    initProgram();
-	//Initialisation of the scene
-    initScene();
+function initWebGL() {
+	try {
+		//Initilisation on the canvas "webgl-canvas"
+		glContext = getGLContext('webgl-canvas');
+		//Initialisation of the programme
+		initProgram();
+		//Initialisation of the scene
+		initScene();
+		//Starting the render loop
+		renderLoop();
+	}
+	catch (e) {
+		console.log(e);
+		if (e.message) console.log(e.message); //comfort of use
+	}
+	finally {
+	}
 }
 
