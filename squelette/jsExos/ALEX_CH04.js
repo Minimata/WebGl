@@ -101,9 +101,9 @@ function triangleCeption() {
         var newA = midPoint(Apoint, Bpoint, 10);
         var newB = midPoint(Bpoint, Cpoint, 10);
         var newC = midPoint(Cpoint, Apoint, 10);
-        vertices.push(newA[0], newA[1], newA[2]-(0.1));
-        vertices.push(newB[0], newB[1], newB[2]-(0.1));
-        vertices.push(newC[0], newC[1], newC[2]-(0.1));
+        vertices.push(newA[0], newA[1], -(i*0.1));
+        vertices.push(newB[0], newB[1], -(i*0.1));
+        vertices.push(newC[0], newC[1], -(i*0.1));
 
         colors.push(0.0, 0.0, 1.0, 1.0 / i);
         colors.push(0.0, 0.0, 1.0, 1.0 / i);
@@ -173,7 +173,7 @@ function drawScene() {
     if (withPerspective) {
         mat4.perspective(pMatrix, degToRad(60), c_width / c_height, 0.1, 10000);
         b = 0.1 * Math.cos(rotationAroundZ);
-        a = 0.3 + 0.1 * Math.sin(rotationAroundZ);
+        a = 0.1 * Math.sin(rotationAroundZ);
         c = -2;
         translationMat = mat4.create();
         mat4.identity(translationMat);
@@ -182,7 +182,7 @@ function drawScene() {
         mvMatrix = mat4.rotateY(mvMatrix, mvMatrix, Math.PI);
     } else {
         b = 0.1 * Math.cos(rotationAroundZ);
-        a = 0.3 + 0.1 * Math.sin(rotationAroundZ);
+        a = 0.1 * Math.sin(rotationAroundZ);
         c = 0;
         translationMat = mat4.create();
         mat4.identity(translationMat);
