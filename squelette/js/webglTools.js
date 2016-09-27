@@ -57,23 +57,13 @@ function initProgram() {
 }
 
 
-function renderLoop(fps) {
-    if(!fps) fps = 60.0;
-    var framerate = 1000.0 / fps;
-    refreshTimer = setInterval(function () {
-        if (window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame) {
-            drawScene();
-        }
-        //drawScene();
-    }, framerate);
+function renderLoop() {
+    drawScene();
+    refreshTimer = requestAnimationFrame(renderLoop);
 }
 
 function stopRenderLoop() {
-    clearInterval(refreshTimer);
+    cancelAnimationFrame(refreshTimer);
 }
 
 /**
