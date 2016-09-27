@@ -137,10 +137,10 @@ function drawScene() {
 
     if (withPerspective) {
         mat4.perspective(pMatrix, degToRad(60), c_width / c_height, 0.1, 10000);
-        b = 0.1 * Math.cos(rotationAroundZ);
         a = 0.1 * Math.sin(rotationAroundZ);
+        b = 0.1 * Math.cos(rotationAroundZ);
         c = -2;
-        vec3.set(vector3, b, a, c);
+        vec3.set(vector3, a, b, c);
         mat4.identity(translationMat);
         mat4.translate(translationMat, translationMat, vector3);
         mat4.multiply(mvMatrix, translationMat, mvMatrix);

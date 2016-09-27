@@ -98,7 +98,9 @@ function getGLContext(canvasName) {
         } catch (e) {
             console.log(e);
         }
-        index++;
+        finally{
+            index++;
+        }
     }
 
     if (!gl) throw new NoGlContextException("No context found on the page with canvas " + canvasName);
