@@ -20,14 +20,14 @@ var rotationAroundZ = 0, displacement = 1;
 
 window.onload = displayTitle("Ch04_ex1");
 
-function cameraGiggle() {
+function cameraJiggle() {
     rotationAroundZ += 0.1;
-    requestAnimationFrame(cameraGiggle);
+    requestAnimationFrame(cameraJiggle);
 }
 
 function increaseTriangleDisplacement() {
     displacement += 0.02;
-    if(displacement >= 18) displacement = 1;
+    if(displacement >= 15) displacement = 1;
     requestAnimationFrame(increaseTriangleDisplacement);
 }
 
@@ -70,7 +70,7 @@ function triangleCeption(numberOfTriangles = 10, triangleDisplacement = 10) {
     colors.push(0.0, 0.0, 1.0, 1.0);
     indices.push(0, 1, 2);
 
-    for (let i = 1; i <= numberOfTriangles; i++) {
+    for (var i = 1; i <= numberOfTriangles; i++) {
         var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
         var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
         var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
@@ -98,9 +98,9 @@ function createCheckBoard(numberOfSquaresBySide) {
     var squareSize = 2.0 / numberOfSquaresBySide;
     var posX = -1.0, posY = -1.0;
 
-    for (let numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++) {
+    for (var numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++) {
         posY = -1.0;
-        for (let numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++) {
+        for (var numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++) {
             if (((numSquareX + numSquareY) % 2) == 0) createSquare(posX, posY, squareSize);
             posY += squareSize;
         }
@@ -176,14 +176,11 @@ function initWebGL() {
         initProgram();
         initBuffers();
         increaseTriangleDisplacement(); //for animated triangle shaping
-        cameraGiggle(); //to see the perspective
+        cameraJiggle(); //to see the perspective
         renderLoop();
     }
     catch (e) {
-        console.log(e);
-        if (e.message) console.log(e.message); //comfort of use
-    }
-    finally {
+        console.error(e);
     }
 }
 

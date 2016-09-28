@@ -31,9 +31,12 @@ function initShaderParameters(prg) {
 
 //Initialisation of the scene
 function initScene() {
-	for(let i = 0; i < allPlanets.length; i++) {
+	$.each(allPlanets, function(name, planet){
+		sceneObjects.push(planet);
+	});
+	/*for(let i = 0; i < allPlanets.length; i++) {
 		sceneObjects.push(allPlanets[i]);
-	}
+	}*/
 	
 	//Defining the viewport as the size of the canvas
 	glContext.viewport(0, 0, c_width, c_height);
