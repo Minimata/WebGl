@@ -10,8 +10,9 @@
     <script src="../sharedJs/debug/webgl-debug.js"></script>
     <script src="../sharedJs/webglTools.js"></script>
     <!-- import application scripts -->
-    <script src="js/planet.js"></script>
-    <script src="js/scene.js"></script>
+    <script src="js/SceneObjects/Drawable.js"></script>
+    <script src="js/SceneObjects/Planet.js"></script>
+    <script src="js/Scene.js"></script>
     <script src="js/Controller.js"></script>
 
     <!-- vertex shader -->
@@ -41,23 +42,12 @@
     </script>
 </head>
 <!-- initialize webgl onload -->
-<body onload="initWebGL()">
-<script>
-    displayTitle("Ch.04 Projet démo - La base");
-</script>
-<br>
-Projet démo afin de faire un rendu de la terre et de la lune, étape 1. Montre l'implémentation d'un objet javascript et
-de son utilisation dans un contexte webgl. <a href="planet-ch04.zip">Télécharger la démo</a>
-<br>
-
+<body>
 <!-- webgl canvas -->
 <canvas id="webgl-canvas" width="500" height="500">
     HTML5 is not supported
 </canvas>
-
-<input id="slider-divisions" type="range" value="100" max="300" min="3" step="1" oninput="updateDivisions()">
-
-<!-- render mode button -->
-<button id="switchWireframe" onclick="changeRender()">Shape / Wireframe</button>
+<input id="slider-divisions" type="range" value="8" max="100" min="3" step="1">
+<button id="switchWireframe">Shape / Wireframe</button>
 </body>
 </html>

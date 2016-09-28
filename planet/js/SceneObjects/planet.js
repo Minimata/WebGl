@@ -88,7 +88,7 @@ class Planet {
         //Links the indexBuffer with the shader
         glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         //Based on the render variable
-        if (render) {
+        if (isRenderingInWireFrame) {
             //Renders the objet as a wireframe
             glContext.drawElements(glContext.LINES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
         }

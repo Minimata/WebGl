@@ -3,36 +3,46 @@
  */
 
 var allPlanets = {
-    "Earth": new Planet("Earth", 0.5, {r:0.14,g:0.29,b:0.65}, 0.0,0.0),
-    "Moon": new Planet("Moon", 0.2, {r:1.0,g:0.96,b:0.83}, -0.6,0.0),
-    "Mars": new Planet("Mars", 0.4, {r:1.0,g:0.2,b:0.05}, 0.5, 0.2)
+    "Earth": new Planet("Earth", 0.5, {r: 0.14, g: 0.29, b: 0.65}, 0.0, 0.0),
+    "Moon": new Planet("Moon", 0.2, {r: 1.0, g: 0.96, b: 0.83}, -0.6, 0.0),
+    "Mars": new Planet("Mars", 0.4, {r: 1.0, g: 0.2, b: 0.05}, 0.5, 0.2)
 };
+var isRenderingInWireFrame = false;
 
-function initAllPlanets() {
-    $.each(allPlanets, function(name, planet) {
-        planet.update();
-    });
-}
+window.onload = displayTitle("DEM PLANETS MAN");
 
-//Initialisation of the webgl context
-function initWebGL() {
+$(function () {
     try {
         glContext = getGLContext('webgl-canvas');
         initAllPlanets();
         initProgram();
         initScene();
+        initEventHandling();
+        //Examples to test Drawable constructor
+        new Drawable("Earth", 0.5, {r: 0.14, g: 0.29, b: 0.65}, {x: 0.3, y:0.4}, 12);
+        new Drawable("Moon", 0.1, 0.2, 0.3, {r: 0.14, g: 0.29, b: 0.65});
+        new Drawable();
         renderLoop();
     }
     catch (e) {
         console.error(e);
     }
-}
+});
 
-function updateDivisions() {
-    var slider = $('#slider-divisions');
-    if(!slider.attr('id')) throw new BadIdGettingException("slider-divisions");
-    $.each(allPlanets, function(name, planet) {
-        planet.divisions = slider[0].value;
+function initAllPlanets() {
+    $.each(allPlanets, function (name, planet) {
         planet.update();
     });
+}
+
+function initEventHandling() {
+    $('#slider-divisions').on('input', function () {
+        var numDivisions = $(this).val();
+        $.each(allPlanets, function (name, planet) {
+            planet.divisions = numDivisions;
+            planet.update();
+        });
+    });
+
+    $('#switchWireframe').click(e => isRenderingInWireFrame = !isRenderingInWireFrame);
 }

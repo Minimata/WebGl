@@ -9,12 +9,6 @@ var pMatrix = mat4.create();
 //Creation of a global array to store the objects drawn in the scene
 var sceneObjects = [];
 
-//Render swap handling, the variable render contains a value used to define if the objects should be rendered as triangles or as lines
-var render = 0;
-function changeRender(){
-	render = render ? 0 : 1;
-}
-
 //Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader. 
 function initShaderParameters(prg) {
 	//Linking of the attribute "vertex position"
