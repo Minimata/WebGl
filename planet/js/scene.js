@@ -2,11 +2,17 @@
 * scene.js - This class handles the whole scene. It contains the initialisation of the gl context, the objects displayed, handles the js interactions on the page and draws the scene
 */
 
+var allPlanets = [
+	new Planet("Earth", 0.5, {r:0.14,g:0.29,b:0.65}, 0.0,0.0),
+	new Planet("Moon", 0.2, {r:1.0,g:0.96,b:0.83}, -0.6,0.0),
+	new Planet("Mars", 0.4, {r:1.0,g:0.2,b:0.05}, 0.5, 0.2)
+];
+
 //Creation of 2 global matrix for the location of the scene (mvMatrix) and for the projection (pMatrix)
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
 
-//Creation of a global array to store the objectfs drawn in the scene
+//Creation of a global array to store the objects drawn in the scene
 var sceneObjects = [];
 
 //Render swap handling, the variable render contains a value used to define if the objects should be rendered as triangles or as lines
@@ -31,10 +37,9 @@ function initShaderParameters(prg) {
 
 //Initialisation of the scene
 function initScene() {
-    //Creation of the earth instance
-	sceneObjects.push(new Planet("Earth", 0.5, {r:0.14,g:0.29,b:0.65}, 0.0,0.0));
-	//Creation of the moon instance
-	sceneObjects.push(new Planet("Moon", 0.2, {r:1.0,g:0.96,b:0.83}, -0.6,0.0));
+	for(let i = 0; i < allPlanets.length; i++) {
+		sceneObjects.push(allPlanets[i]);
+	}
 	
 	//Defining the viewport as the size of the canvas
 	glContext.viewport(0, 0, c_width, c_height);
@@ -56,21 +61,24 @@ function drawScene() {
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 	
 	//Calling draw for each object in our scene
-	for(let i= 0;i<sceneObjects.length;i++) {
+	for(let i= 0; i < sceneObjects.length; i++) {
 		sceneObjects[i].draw();
+	}
+}
+
+function initAllPlanets() {
+	for(let i = 0; i < allPlanets.length; i++) {
+		allPlanets[i].init();
 	}
 }
 
 //Initialisation of the webgl context
 function initWebGL() {
 	try {
-		//Initilisation on the canvas "webgl-canvas"
 		glContext = getGLContext('webgl-canvas');
-		//Initialisation of the programme
+		initAllPlanets();
 		initProgram();
-		//Initialisation of the scene
 		initScene();
-		//Starting the render loop
 		renderLoop();
 	}
 	catch (e) {
@@ -78,6 +86,15 @@ function initWebGL() {
 		if (e.message) console.log(e.message); //comfort of use
 	}
 	finally {
+	}
+}
+
+function updateDivisions() {
+	var slider = document.getElementById("slider-divisions");
+	if(!slider) throw new BadIdGettingException("slider-divisions");
+	for(let i = 0; i < allPlanets.length; i++) {
+		allPlanets[i].divisions = slider.value;
+		allPlanets[i].init();
 	}
 }
 

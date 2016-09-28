@@ -4,12 +4,13 @@
         <meta charset="utf-8" />
         <link rel="stylesheet" href="css/stylesheet.css">
 		<!-- import of webgl utilities -->
-        <script src="./js/commonFunctions.js"></script>
-        <script src="./js/gl-matrix-min.js"></script>
-        <script src="./js/webglTools.js"></script>
+        <script src="js/commonFunctions.js"></script>
+        <script src="js/gl-matrix-min.js"></script>
+        <script src="debug/webgl-debug.js"></script>
+        <script src="js/webglTools.js"></script>
 		<!-- import application scripts -->
-        <script src="./js/scene.js"></script>
-        <script src="./js/planet.js"></script>
+        <script src="js/planet.js"></script>
+        <script src="js/scene.js"></script>
 		
 		<!-- vertex shader -->
         <script id="shader-vs" type="x-shader/x-vertex">
@@ -48,6 +49,8 @@
 		<canvas id="webgl-canvas" width="500" height="500">
 		  HTML5 is not supported
 		</canvas>
+
+        <input id="slider-divisions" type="range" value="100" max="300" min="3" step="1" oninput="updateDivisions()">
 		
 		<!-- render mode button -->
 		<button id="switchWireframe" onclick="changeRender()">Shape / Wireframe</button>

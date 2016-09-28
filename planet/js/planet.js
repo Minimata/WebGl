@@ -21,18 +21,6 @@ class Planet {
 		this.color = color;
 		this.x = x;
 		this.y = y;
-		this.initBuffersAndArrays();
-
-		//Static definition of the subdivision of the perimeter of the planet to create the various points for the verticies
-		this.division = 100;
-		//Creation of a movement matrix specific for the object
-		this.mvMatrix = mat4.create();
-
-		//Call of the initialisation method
-		this.init();
-	}
-
-	initBuffersAndArrays() {
 		//Initialisation of the buffers within the object
 		this.vertexBuffer = null;
 		this.indexBuffer = null;
@@ -41,20 +29,28 @@ class Planet {
 		this.indices = [];
 		this.vertices = [];
 		this.colors = [];
+
+		//Static definition of the subdivision of the perimeter of the planet to create the various points for the verticies
+		this.division = 100;
+		//Creation of a movement matrix specific for the object
+		this.mvMatrix = mat4.create();
 	}
 
 	init() {
+		this.vertices = [];
+		this.colors = [];
+		this.indices = [];
+
 		//Defining the center point of the circle
 		this.vertices.push(0.0,0.0,0.0);
 
 		//Based on division, generates the various vertices for the circle
 		for(let i = 0; i<360 ;i+=360/this.division) {
 			this.vertices.push(this.radius * Math.sin(glMatrix.toRadian(i)), this.radius * Math.cos(glMatrix.toRadian(i)),0.0);
-
 		}
 
 		//And defines the same color for each of the vertices
-		for(let i =0; i<this.division+1; i++) {
+		for(let i =0; i < this.division + 1; i++) {
 			this.colors.push(this.color.r, this.color.g, this.color.b, 1.0);
 		}
 
@@ -96,4 +92,7 @@ class Planet {
 			glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT,0);
 		}
 	}
+
+	get divisions () {return this.division}
+	set divisions (div) {this.division = div}
 }
