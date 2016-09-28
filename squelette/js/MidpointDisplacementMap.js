@@ -55,7 +55,7 @@ function MidpointDisplacementMapGenerator(setSize, displacement) {
     
     // prepare
     this.generate = function (ceil) {
-        // init array
+        // update array
         for (var i=0; i<size; i++)
             map[i] = [];
         

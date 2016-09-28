@@ -48,7 +48,7 @@ var Scene = function(canvasName) {
 	this.rendering = null;
 	this.dataLoading = null;
 	
-	// init scene and UI
+	// update scene and UI
 	this.initWebGL(canvasName);
 	this.initUIListeners();
 };
@@ -135,7 +135,7 @@ Scene.prototype.initRendering = function(newDataLoading) {
 			this.rendering.setOptions(this.renderingOptions);
 		}
 
-		// init camera for new loading
+		// update camera for new loading
 		if (newDataLoading) {
 			this.initCamera(false, false);
 		// focus canvas for a changed rendering
@@ -295,7 +295,7 @@ Scene.prototype.initUIListeners = function() {
 		var canvas = document.getElementById("image-canvas");
 		
 		// load data as direct text button - changes rendering (without refresh) and loads data
-		// when loaded, the data loading object calls the init rendering method
+		// when loaded, the data loading object calls the update rendering method
 		buttonData.addEventListener("click", function() {
 			me.changeRendering("RenderingTriangles", true, false);
 			new DataLoadingText(me.initRendering.bind(me), textareaData.value);

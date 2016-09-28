@@ -65,8 +65,8 @@ function triangleCeption(numberOfTriangles = 10, triangleDisplacement = 10) {
     vertices.push(-1.0, -1.0, 0.0);
     vertices.push(1.0, -1.0, 0.0);
     vertices.push(0.0, 1.0, 0.0);
-    colors.push(0.0, 0.0, 1.0, 1.0);
-    colors.push(0.0, 0.0, 1.0, 1.0);
+    colors.push(1.0, 0.0, 0.0, 1.0);
+    colors.push(0.0, 1.0, 0.0, 1.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
     indices.push(0, 1, 2);
 
@@ -81,9 +81,9 @@ function triangleCeption(numberOfTriangles = 10, triangleDisplacement = 10) {
         vertices.push(newB[0], newB[1], -(i*0.1));
         vertices.push(newC[0], newC[1], -(i*0.1));
 
-        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
-        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
-        colors.push(0.0, 0.0, 1.0, 1.0 / (i + 1));
+        colors.push(1.0 / (i+1), 0.0, 0.0, 1.0 / (i + 1));
+        colors.push(0.0, 1.0 / (i+1), 0.0, 1.0 / (i + 1));
+        colors.push(0.0, 0.0, 1.0 / (i+1), 1.0 / (i + 1));
 
         indices.push(3*i, 3*i + 1, 3*i + 2);
     }
