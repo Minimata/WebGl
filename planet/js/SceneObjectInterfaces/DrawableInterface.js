@@ -3,7 +3,7 @@
  */
 
 class DrawableInterface {
-    constructor(drawable, ...args) {
+    constructor(drawable = null) {
         this.drawable = drawable;
         if (new.target === DrawableInterface) {
             throw new TypeError("Cannot construct DrawableInterface instances directly (abstract class)");
@@ -11,11 +11,12 @@ class DrawableInterface {
     }
 
     update(drawable = this.drawable) {
+        if(!drawable) throw ReferenceError("Null Drawable cannot be updated");
         drawable.vertices = [];
         drawable.colors = [];
         drawable.indices = [];
 
-        this.fillArrays();
+        this.fillArrays(drawable);
 
         //Converts the values to buffers
         drawable.vertexBuffer = getVertexBufferWithVertices(drawable.vertices);

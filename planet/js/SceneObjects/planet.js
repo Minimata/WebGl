@@ -4,21 +4,18 @@
 
 
 class Planet extends Drawable{
-    constructor(id = "MinimataPlanet", ...args) {
-        super(id, ...args);
+    constructor(...args) {
+        super(...args);
 
-        var objArgs = {};
-        var numArgs = [];
-        this.extractObjects(args, objArgs, numArgs);
-        var {radius, divisions} = objArgs;
+        Object.assign(this.defaultValues, {
+            radius: 0.5,
+            divisions: 100
+        });
 
-        this._radius = radius;
-        this._divisions = divisions;
+        this._radius = this.defaultValues.radius;
+        this._divisions = this.defaultValues.divisions;
 
-        /**
-         * Broken
-         */
-        //this.assignNumericArgs(this, numArgs, 3);
+        this.extractObjects(this, args);
 
         console.log(this);
     }
@@ -26,7 +23,7 @@ class Planet extends Drawable{
     get divisions   ()      {return this._divisions}
     set divisions   (div)   {this._divisions = div}
     get radius      ()      {return this._radius}
-    set radius      (r)   {this._radius = r}
+    set radius      (r)     {this._radius = r}
 
     draw() {
         super.draw();

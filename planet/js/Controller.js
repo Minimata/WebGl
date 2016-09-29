@@ -3,9 +3,9 @@
  */
 
 var allDrawables = {
-    "Earth": new Planet("Earth", {r: 0.14, g: 0.29, b: 0.65, a: 1.0}, {x: 0.0, y:0.0, z:0.0}, {radius: 0.5, divisions: 8}),
+    "Earth": new Planet("Earth", {r: 0.14, g: 0.29, b: 0.65, a: 1.0}, {x: 0.0, y:0.0, z:0.0}, 0.5, 8),
     "Moon": new Planet("Moon", {r: 1.0, g: 0.96, b: 0.83, a: 1.0},{x: -0.6, y:0.0, z:0.0}, {radius: 0.2, divisions: 8}),
-    "Mars": new Planet("Mars", {r: 1.0, g: 0.2, b: 0.05, a: 1.0}, {x: 0.5, y:0.2, z:0.0}, {radius: 0.4, divisions: 8})
+    "Mars": new Planet("Mars", 1, 0.2, 0, {x: 0.5, y:0.2, z:0.0}, 1.0, 0.3)
 };
 var allInterfaces = {
     "Earth": new PlanetInterface(allDrawables["Earth"]),

@@ -3,37 +3,29 @@
  */
 
 class Drawable {
-    constructor(id = "Minimata", ...args) {
-        /** This constructor allows any number of argument, and "parse" them between Objects and other types.
-         *  It dispatches the arguments between needed attributes of the object.
-         *  It then initialize the undefined attributes of missing parameters at 1.0.
-         *
-         * This loop separates objects from other types in the args array, representing parameters.
-         * Object.assign is (supposedly) a ES6 method to "concatenate" objects.
-         * After the loop, the parameters given with the same name as an object attribute are assigned (ES6 syntax).
-         */
-        var objArgs = {};
-        var numArgs = [];
-        this.extractObjects(args, objArgs, numArgs);
-        var {x, y, z, r, g, b, a} = objArgs;
+    constructor(...args) {
 
-        this._id = id;
-        this._x = x;
-        this._y = y;
-        this._z = z;
-        this._r = r;
-        this._g = g;
-        this._b = b;
-        this._a = a;
+        this.defaultValues = {
+            id: "Minimata",
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            r: 1.0,
+            g: 1.0,
+            b: 1.0,
+            a: 1.0
+        };
 
-        /**
-         * This loop analyzes the still undefined attributes and assign them the number/array/[insert type here]
-         * to any undefined attribute, in the order they were extracted from the parameters.
-         * If any attribute is left undefined because of lack of parameters, it is set at 1.0.
-         *
-         * This breaks the shit out of drawables
-         */
-        //this.assignNumericArgs(this, numArgs);
+        this._id = this.defaultValues.id;
+        this._x = this.defaultValues.x;
+        this._y = this.defaultValues.y;
+        this._z = this.defaultValues.z;
+        this._r = this.defaultValues.r;
+        this._g = this.defaultValues.g;
+        this._b = this.defaultValues.b;
+        this._a = this.defaultValues.a;
+
+        this.extractObjects(this, args);
 
         //Initialisation of the buffers within the object
         this._vertexBuffer = null;
@@ -99,17 +91,19 @@ class Drawable {
         this._z = z;
     }
 
-    extractObjects(args, objArgs, numArgs) {
-        for (var index = 0; index < args.length; index++) {
-            if (args[index] instanceof Object) Object.assign(objArgs, args[index]);
-            else numArgs.push(args[index]);
+    extractObjects(obj, args) {
+        var objArgs = {};
+        var numArgs = [];
+        var i;
+        for (i = 0; i < args.length; i++) {
+            if (args[i] instanceof Object) Object.assign(objArgs, args[i]);
+            else numArgs.push(args[i]);
         }
-    }
-
-    assignNumericArgs(obj, numArgs, defaultValue = 1.0){
-        $.each(obj, function (name, value) {
-            if (!value) obj[name] = numArgs.shift();
-            if (!obj[name]) obj[name] = defaultValue;
+        $.each(obj.defaultValues, function(attr) {
+            if(objArgs[attr] === undefined){
+                (numArgs[0] === undefined) ? obj['_' + attr] = obj.defaultValues[attr] : obj['_' + attr] = numArgs.shift();
+            }
+            else obj['_' + attr] = objArgs[attr]
         });
     }
 

@@ -3,11 +3,12 @@
  */
 
 class PlanetInterface extends DrawableInterface {
-    constructor(drawable, ...args) {
-        super(drawable, args);
+    constructor(drawable = null) {
+        super(drawable);
     }
 
     fillArrays(drawable = this.drawable) {
+
         var i;
         drawable.vertices.push(0.0, 0.0, 0.0);
 
