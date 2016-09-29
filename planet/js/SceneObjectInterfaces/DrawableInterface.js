@@ -2,24 +2,35 @@
  * Created by alexandre on 28.09.2016.
  */
 
-function updateDrawable(drawable) {
-    drawable.vertices = [];
-    drawable.colors = [];
-    drawable.indices = [];
+class DrawableInterface {
+    constructor(drawable, ...args) {
+        this.drawable = drawable;
+        if (new.target === DrawableInterface) {
+            throw new TypeError("Cannot construct DrawableInterface instances directly (abstract class)");
+        }
+    }
 
-    fillArrays();
+    update(drawable = this.drawable) {
+        drawable.vertices = [];
+        drawable.colors = [];
+        drawable.indices = [];
 
-    //Converts the values to buffers
-    drawable.vertexBuffer = getVertexBufferWithVertices(drawable.vertices);
-    drawable.colorBuffer = getVertexBufferWithVertices(drawable.colors);
-    drawable.indexBuffer = getIndexBufferWithIndices(drawable.indices);
+        this.fillArrays();
 
-    //Defines the position matrix of the object
-    mat4.identity(drawable.mvMatrix);
-    mat4.translate(drawable.mvMatrix, drawable.mvMatrix, vec3.fromValues(drawable.x, drawable.y, drawable.z));
+        //Converts the values to buffers
+        drawable.vertexBuffer = getVertexBufferWithVertices(drawable.vertices);
+        drawable.colorBuffer = getVertexBufferWithVertices(drawable.colors);
+        drawable.indexBuffer = getIndexBufferWithIndices(drawable.indices);
+
+        //Defines the position matrix of the object
+        mat4.identity(drawable.mvMatrix);
+        mat4.translate(drawable.mvMatrix, drawable.mvMatrix, vec3.fromValues(drawable.x, drawable.y, drawable.z));
+    }
+
+    /**
+     * This is where the drawing logic of the children will be
+     */
+    fillArrays(drawable) {
+        throw TypeError("function fillArrays shouldn't be executed from abstract class DrawableInterface.");
+    }
 }
-
-/**
- * This is where the drawing logic of the children will be
- */
-function fillArrays() {}

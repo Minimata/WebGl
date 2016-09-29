@@ -3,9 +3,14 @@
  */
 
 var allDrawables = {
-    "Earth": new Planet("Earth", 0.5, {r: 0.14, g: 0.29, b: 0.65}, 0.0, 0.0),
-    "Moon": new Planet("Moon", 0.2, {r: 1.0, g: 0.96, b: 0.83}, -0.6, 0.0),
-    "Mars": new Planet("Mars", 0.4, {r: 1.0, g: 0.2, b: 0.05}, 0.5, 0.2)
+    "Earth": new Planet("Earth", {r: 0.14, g: 0.29, b: 0.65, a: 1.0}, {x: 0.0, y:0.0, z:0.0}, {radius: 0.5, divisions: 8}),
+    "Moon": new Planet("Moon", {r: 1.0, g: 0.96, b: 0.83, a: 1.0},{x: -0.6, y:0.0, z:0.0}, {radius: 0.2, divisions: 8}),
+    "Mars": new Planet("Mars", {r: 1.0, g: 0.2, b: 0.05, a: 1.0}, {x: 0.5, y:0.2, z:0.0}, {radius: 0.4, divisions: 8})
+};
+var allInterfaces = {
+    "Earth": new PlanetInterface(allDrawables["Earth"]),
+    "Moon": new PlanetInterface(allDrawables["Moon"]),
+    "Mars": new PlanetInterface(allDrawables["Mars"])
 };
 var isRenderingInWireFrame = false;
 
@@ -18,10 +23,8 @@ $(function () {
         initProgram();
         initScene();
         initEventHandling();
-        //Examples to test Drawable constructor
-        new Drawable("Earth", 0.5, {r: 0.14, g: 0.29, b: 0.65}, {x: 0.3, y:0.4}, 12);
-        new Drawable("Moon", 0.1, 0.2, 0.3, {r: 0.14, g: 0.29, b: 0.65});
-        new Drawable();
+
+        logicLoop();
         renderLoop();
     }
     catch (e) {
@@ -30,7 +33,7 @@ $(function () {
 });
 
 function initAllDrawables() {
-    $.each(allDrawables, function (name, planet) {
+    $.each(allInterfaces, function (name, planet) {
         planet.update();
     });
 }
@@ -38,17 +41,16 @@ function initAllDrawables() {
 function initEventHandling() {
     $('#slider-divisions').on('input', function () {
         var numDivisions = $(this).val();
-        $.each(allDrawables, function (name, planet) {
-            planet.divisions = numDivisions;
-            planet.update();
+        $.each(allInterfaces, function (name, int) {
+            allDrawables[name].divisions = numDivisions;
+            int.update(allDrawables[name]);
         });
     });
 
     $('#switchWireFrame').click(e => isRenderingInWireFrame = !isRenderingInWireFrame);
 }
 
-function getAllAdrawables() {return allDrawables}
+function getAllDrawables() {return allDrawables}
 
 function updateScene() {
-
 }
