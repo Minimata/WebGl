@@ -6,10 +6,10 @@
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
 
-//Creation of a global array to store the objects drawn in the scene
-var sceneObjects = [];
-
-//Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader. 
+/**
+ * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
+ * It is called by initProgran in webglTools.js.
+ */
 function initShaderParameters(prg) {
 	//Linking of the attribute "vertex position"
     prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
@@ -25,35 +25,17 @@ function initShaderParameters(prg) {
 
 //Initialisation of the scene
 function initScene() {
-	$.each(allPlanets, function(name, planet){
-		sceneObjects.push(planet);
-	});
-	/*for(let i = 0; i < allPlanets.length; i++) {
-		sceneObjects.push(allPlanets[i]);
-	}*/
-	
-	//Defining the viewport as the size of the canvas
 	glContext.viewport(0, 0, c_width, c_height);
-	//Setting the projection matrix as an identity matrix
-	mat4.identity(pMatrix);	
-	
-	//Sending the projection matrix to the shaders
+	mat4.identity(pMatrix);
 	glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
-	
-	//Enabling the depth test
 	glContext.enable(glContext.DEPTH_TEST);
-	//Sets the color black for the clear of the scene
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
 }
 
-//Draw scene method called when the render loop is started
 function drawScene() {
-	//Clearing the previous render based on color and depth
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
-	
-	//Calling draw for each object in our scene
-	for(let i= 0; i < sceneObjects.length; i++) {
-		sceneObjects[i].draw();
-	}
+	$.each(getAllAdrawables(), function(name, drawable) {
+		drawable.draw();
+	})
 }
 

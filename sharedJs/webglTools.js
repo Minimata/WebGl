@@ -2,7 +2,8 @@ var glContext = null;
 var c_width = 0;
 var c_height = 0;
 var prg = null;
-var refreshTimer;
+var renderTimer;
+var logicTimer;
 
 function degToRad(degrees) {
     return (degrees * Math.PI / 180.0);
@@ -56,13 +57,23 @@ function initProgram() {
     initShaderParameters(prg);
 }
 
+/**
+ * Here we use the fact that requestAnimationFrame is asynchronous to separate the logic from the rendering.
+ */
 function renderLoop() {
     drawScene();
-    refreshTimer = requestAnimationFrame(renderLoop);
+    renderTimer = requestAnimationFrame(renderLoop);
+}
+function stopRenderLoop() {
+    cancelAnimationFrame(renderTimer);
 }
 
-function stopRenderLoop() {
-    cancelAnimationFrame(refreshTimer);
+function logicLoop() {
+    updateScene();
+    logicTimer = requestAnimationFrame(logicLoop);
+}
+function  stopLogicLoop() {
+    cancelAnimationFrame(logicTimer);
 }
 
 /**
