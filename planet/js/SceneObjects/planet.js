@@ -17,7 +17,10 @@ class Planet extends Drawable{
 
         this.extractObjects(this, args);
 
-        console.log(this);
+        Object.assign(this._renderingMethods, {
+            LINES: this.LINES,
+            TRIANGLES: this.TRIANGLES
+        })
     }
 
     get divisions   ()      {return this._divisions}
@@ -25,14 +28,16 @@ class Planet extends Drawable{
     get radius      ()      {return this._radius}
     set radius      (r)     {this._radius = r}
 
-    draw() {
-        super.draw();
-        if (isRenderingInWireFrame) {
-            glContext.drawElements(glContext.LINES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
-        }
-        else {
-            glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
-        }
+    draw(render = this._renderingMethod) {
+        super.draw(render);
+    }
+
+    LINES() {
+        return glContext.drawElements(glContext.LINES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
+    }
+
+    TRIANGLES() {
+        return glContext.drawElements(glContext.TRIANGLES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
     }
 }
 

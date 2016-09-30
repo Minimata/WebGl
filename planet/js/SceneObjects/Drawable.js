@@ -13,7 +13,8 @@ class Drawable {
             r: 1.0,
             g: 1.0,
             b: 1.0,
-            a: 1.0
+            a: 1.0,
+            renderingMethod: "TRIANGLES"
         };
 
         this._id = this.defaultValues.id;
@@ -24,8 +25,13 @@ class Drawable {
         this._g = this.defaultValues.g;
         this._b = this.defaultValues.b;
         this._a = this.defaultValues.a;
+        this._renderingMethod = this.defaultValues.renderingMethod;
 
         this.extractObjects(this, args);
+
+        this._renderingMethods = {
+            _obj: this
+        };
 
         //Initialisation of the buffers within the object
         this._vertexBuffer = null;
@@ -60,6 +66,8 @@ class Drawable {
     set b   (b)     {this._b = b}
     get a   ()      {return this._a}
     set a   (a)     {this._a = a}
+    get renderingMethods    ()  {return this._renderingMethods}
+    set renderingMethods    (r) {this._renderingMethods = r}
     get vertexBuffer    ()      {return this._vertexBuffer}
     set vertexBuffer    (v)     {this._vertexBuffer = v}
     get indexBuffer     ()      {return this._indexBuffer}
@@ -107,7 +115,10 @@ class Drawable {
         });
     }
 
-    draw() {
+    draw(render = this._renderingMethod) {
+        if(!render) throw ReferenceError("No rendering method defined");
+        if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
+
         glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, this.mvMatrix);
 
         glContext.bindBuffer(glContext.ARRAY_BUFFER, this.vertexBuffer);
@@ -117,5 +128,7 @@ class Drawable {
         glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
 
         glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
+        return this.renderingMethods[render]();
     }
 }

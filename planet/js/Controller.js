@@ -3,9 +3,9 @@
  */
 
 var allDrawables = {
-    "Earth": new Planet("Earth", {r: 0.14, g: 0.29, b: 0.65, a: 1.0}, {x: 0.0, y:0.0, z:0.0}, 0.5, 8),
-    "Moon": new Planet("Moon", {r: 1.0, g: 0.96, b: 0.83, a: 1.0},{x: -0.6, y:0.0, z:0.0}, {radius: 0.2, divisions: 8}),
-    "Mars": new Planet("Mars", 1, 0.2, 0, {x: 0.5, y:0.2, z:0.0})
+    "Earth": new Planet("Earth", {r: 0.14, g: 0.29, b: 0.65, a: 1.0}, {x: 0.0, y:0.0, z:0.0}, "TRIANGLES", 0.5, 8),
+    "Moon": new Planet("Moon", {r: 1.0, g: 0.96, b: 0.83, a: 1.0},{x: -0.6, y:0.0, z:0.0}, {radius: 0.2, divisions: 8}, "LINES"),
+    "Mars": new Planet("Mars", 1, 0.2, 0, {x: 0.5, y:0.2, z:0.0}, {radius: 0.4, divisions: 8})
 };
 var planetInt = new PlanetInterface();
 
@@ -19,7 +19,7 @@ var allInterfaces = {
     "Mars": new PlanetInterface(allDrawables["Mars"])
 };
 */
-var isRenderingInWireFrame = false;
+var renderMethod;
 
 window.onload = displayTitle("DEM PLANETS MAN");
 
@@ -54,7 +54,10 @@ function initEventHandling() {
         });
     });
 
-    $('#switchWireFrame').click(e => isRenderingInWireFrame = !isRenderingInWireFrame);
+    $('#switchWireFrame').click(function() {
+        if(renderMethod == "TRIANGLES") renderMethod = "LINES";
+        else renderMethod = "TRIANGLES";
+    });
 }
 
 function getAllDrawables() {return allDrawables}

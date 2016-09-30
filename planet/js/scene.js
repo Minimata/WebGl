@@ -35,7 +35,8 @@ function initScene() {
 function drawScene() {
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 	$.each(getAllDrawables(), function(name, drawable) {
-		drawable.draw();
+		if(!renderMethod) drawable.draw();
+		else drawable.draw(renderMethod);
 	});
 }
 
