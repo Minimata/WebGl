@@ -28,10 +28,6 @@ class Planet extends Drawable{
     get radius      ()      {return this._radius}
     set radius      (r)     {this._radius = r}
 
-    draw(render = this._renderingMethod) {
-        super.draw(render);
-    }
-
     LINES() {
         return glContext.drawElements(glContext.LINES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
     }

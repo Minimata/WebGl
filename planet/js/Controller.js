@@ -19,7 +19,11 @@ var allInterfaces = {
     "Mars": new PlanetInterface(allDrawables["Mars"])
 };
 */
-var renderMethod;
+var renderMethod = 0;
+var renderMethods = [
+    "TRIANGLES",
+    "LINES"
+];
 
 window.onload = displayTitle("DEM PLANETS MAN");
 
@@ -55,8 +59,7 @@ function initEventHandling() {
     });
 
     $('#switchWireFrame').click(function() {
-        if(renderMethod == "TRIANGLES") renderMethod = "LINES";
-        else renderMethod = "TRIANGLES";
+        renderMethod++;
     });
 }
 
