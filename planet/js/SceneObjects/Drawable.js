@@ -5,7 +5,7 @@
 class Drawable {
     constructor(...args) {
 
-        this.defaultValues = {
+        this._defaultValues = {
             id: "Minimata",
             x: 0.0,
             y: 0.0,
@@ -17,15 +17,15 @@ class Drawable {
             renderingMethod: "TRIANGLES"
         };
 
-        this._id = this.defaultValues.id;
-        this._x = this.defaultValues.x;
-        this._y = this.defaultValues.y;
-        this._z = this.defaultValues.z;
-        this._r = this.defaultValues.r;
-        this._g = this.defaultValues.g;
-        this._b = this.defaultValues.b;
-        this._a = this.defaultValues.a;
-        this._renderingMethod = this.defaultValues.renderingMethod;
+        this._id = this._defaultValues.id;
+        this._x = this._defaultValues.x;
+        this._y = this._defaultValues.y;
+        this._z = this._defaultValues.z;
+        this._r = this._defaultValues.r;
+        this._g = this._defaultValues.g;
+        this._b = this._defaultValues.b;
+        this._a = this._defaultValues.a;
+        this._renderingMethod = this._defaultValues.renderingMethod;
 
         this.extractObjects(this, args);
 
@@ -66,6 +66,7 @@ class Drawable {
     set b   (b)     {this._b = b}
     get a   ()      {return this._a}
     set a   (a)     {this._a = a}
+    get defaultValues   ()  {return this._defaultValues}
     get renderingMethods    ()  {return this._renderingMethods}
     set renderingMethods    (r) {this._renderingMethods = r}
     get vertexBuffer    ()      {return this._vertexBuffer}
@@ -107,9 +108,9 @@ class Drawable {
             if (args[i] instanceof Object) Object.assign(objArgs, args[i]);
             else numArgs.push(args[i]);
         }
-        $.each(obj.defaultValues, function(attr) {
+        $.each(obj._defaultValues, function(attr) {
             if(objArgs[attr] === undefined){
-                (numArgs[0] === undefined) ? obj['_' + attr] = obj.defaultValues[attr] : obj['_' + attr] = numArgs.shift();
+                (numArgs[0] === undefined) ? obj['_' + attr] = obj._defaultValues[attr] : obj['_' + attr] = numArgs.shift();
             }
             else obj['_' + attr] = objArgs[attr]
         });

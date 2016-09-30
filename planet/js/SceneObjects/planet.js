@@ -7,13 +7,13 @@ class Planet extends Drawable{
     constructor(...args) {
         super(...args);
 
-        Object.assign(this.defaultValues, {
+        Object.assign(this._defaultValues, {
             radius: 0.5,
             divisions: 100
         });
 
-        this._radius = this.defaultValues.radius;
-        this._divisions = this.defaultValues.divisions;
+        this._radius = this._defaultValues.radius;
+        this._divisions = this._defaultValues.divisions;
 
         this.extractObjects(this, args);
 
