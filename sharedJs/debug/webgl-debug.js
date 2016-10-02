@@ -46,6 +46,11 @@ function logAndValidate(functionName, args) {
     validateNoneOfTheArgsAreUndefined(functionName, args);
 }
 
+function GlContextError(message) {
+    this.errorName = "GlContextError";
+    this.message = message;
+}
+
 function BadIdGettingException(message) {
     this.errorName = "BadIdGettingException";
     this.message = message;

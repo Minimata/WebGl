@@ -8,18 +8,16 @@ var pMatrix = mat4.create();
 
 /**
  * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
- * It is called by initProgran in webglTools.js.
+ * It is called by initProgram in webglTools.js.
  */
 function initShaderParameters(prg) {
-	//Linking of the attribute "vertex position"
     prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
 	glContext.enableVertexAttribArray(prg.vertexPositionAttribute);
-	//Linking of the attribute "color"
+
 	prg.colorAttribute 			= glContext.getAttribLocation(prg, "aColor");
 	glContext.enableVertexAttribArray(prg.colorAttribute);
-	//Linking of the uniform [mat4] for the projection matrix
+
 	prg.pMatrixUniform          = glContext.getUniformLocation(prg, 'uPMatrix');
-	//Linking of the uniform [mat4] for the movement matrix
 	prg.mvMatrixUniform         = glContext.getUniformLocation(prg, 'uMVMatrix');
 }
 

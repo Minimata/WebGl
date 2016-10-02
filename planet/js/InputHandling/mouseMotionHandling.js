@@ -2,6 +2,32 @@
  Mouse motion handling
  *******************************************************************************/
 
+/**
+ * keys handling
+ *
+ * document.onkeydown = function (e) {
+    e = e || window.event;//Get event
+    if (e.ctrlKey) {
+        var c = e.which || e.keyCode;//Get key code
+        switch (c) {
+            case 83://Block Ctrl+S
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(c);
+                break;
+        }
+    }
+};
+
+
+ $('#id').keydown(function(event){
+    console.log(event.key);
+    console.log(event.keyCode);
+    event.preventDefault();
+    event.stopPropagation();
+});
+ */
+
 // get a reference to the webgl canvas
 var myCanvas = document.getElementById('webgl-canvas');
 myCanvas.onmousemove = handleMouseMove;
