@@ -17,8 +17,10 @@
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
         varying vec4 vColor;
+		varying vec3 vVertexPosition;
         void main(void) {
           vColor = aColor;
+		  vVertexPosition = aVertexPosition;
           gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
     </script>
@@ -31,8 +33,9 @@
           precision highp float;
         #endif
           varying vec4 vColor;
+		  varying vec3 vVertexPosition;
         void main(void) {
-          gl_FragColor = vColor;
+			gl_FragColor = vColor * vec4(vVertexPosition, 1.0);
         }
     </script>
     <script src="jsExos/KARIM_CH04_ChessBoard_Hot.js"></script>
