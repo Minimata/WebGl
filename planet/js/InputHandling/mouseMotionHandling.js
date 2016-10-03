@@ -2,84 +2,55 @@
  Mouse motion handling
  *******************************************************************************/
 
-/**
- * keys handling
- *
- * document.onkeydown = function (e) {
-    e = e || window.event;//Get event
-    if (e.ctrlKey) {
-        var c = e.which || e.keyCode;//Get key code
-        switch (c) {
-            case 83://Block Ctrl+S
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(c);
-                break;
-        }
-    }
-};
-
-
- $('#id').keydown(function(event){
-    console.log(event.key);
-    console.log(event.keyCode);
-    event.preventDefault();
-    event.stopPropagation();
-});
- */
-
-// get a reference to the webgl canvas
-var myCanvas = document.getElementById('webgl-canvas');
-myCanvas.onmousemove = handleMouseMove;
-myCanvas.onmousedown = handleMouseDown;
-myCanvas.onmouseup = handleMouseUp;
 
 // this variable will tell if the mouse is being moved while pressing the button
 var rotY = 0; //rotation on the Y-axis (in degrees) 
 var rotX = 0; //rotation on the X-axis (in degrees) 
 var dragging = false;
 var oldMousePos = {x: 0, y: 0};
-var mousePos;
-var rotSpeed = 1.0; //rotation speed 
-var mouseButton;
+var rotSpeed = 1.0; //rotation speed
+
+function getMousePos(evt) {
+    var rect = myCanvas[0].getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
 
 function handleMouseMove(event) {
     var dX, dY;
     event = event || window.event; // IE-ism
-    mousePos = {
-        x: event.clientX,
-        y: event.clientY
-    };
+    var {x, y} = getMousePos(event);
     if (dragging) {
-        dX = mousePos.x - oldMousePos.x;
-        dY = mousePos.y - oldMousePos.y;
+        dX = x - oldMousePos.x;
+        dY = y - oldMousePos.y;
 
-        //console.log((mousePos.x - oldMousePos.x) + ", " + (mousePos.y - oldMousePos.y)); //--- DEBUG LINE ---
+        console.log((x - oldMousePos.x) + ", " + (y - oldMousePos.y)); //--- DEBUG LINE ---
 
         rotY += dX > 0 ? rotSpeed : dX < 0 ? -rotSpeed : 0;
         rotX += dY > 0 ? rotSpeed : dY < 0 ? -rotSpeed : 0;
-        oldMousePos = mousePos;
+        oldMousePos = {x, y};
     }
 }
 
-function handleMouseDown(event) {
+function handleMouseDown() {
     dragging = true;
-    mouseButton = event.button;
     oldMousePos.x = oldMousePos.y = 0;
 }
 
-function handleMouseUp(event) {
+function handleMouseUp() {
     dragging = false;
 }
 
-// in the next function 'currentRy' is usefull for the exercice 8-9
+// in the next function 'currentRy' is useful for exercises 8-9
 var currentRy = 0; //keeps the current rotation on y, used to keep the billboards orientation
 
 function rotateModelViewMatrixUsingQuaternion(stop) {
 
     stop = typeof stop !== 'undefined' ? stop : false;
     //use quaternion rotations for the rotation of the object with the mouse
-    /*angle = degToRad(rotY);
+    /**angle = degToRad(rotY);
      currentRy += angle;
      rotYQuat = quat.create([0, Math.sin(angle/2), 0, Math.cos(angle/2)]);
 

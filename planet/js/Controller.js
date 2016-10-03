@@ -2,6 +2,9 @@
  * Created by alexandre on 28.09.2016.
  */
 
+var canvasName = 'webgl-canvas';
+var myCanvas;
+
 var jiggle = 0;
 var allPositions = {
     "Earth": {x: 0.0, y:0.0, z:0.0},
@@ -55,7 +58,7 @@ window.onload = displayTitle("DEM PLANETS MAN");
 
 $(function () {
     try {
-        glContext = getGLContext('webgl-canvas');
+        initSceneEssentials();
         initAllDrawables();
         initProgram();
         initScene();
@@ -73,6 +76,11 @@ function initAllDrawables() {
     updateScene();
 }
 
+function initSceneEssentials() {
+    myCanvas = $('#' + canvasName);
+    glContext = getGLContext(canvasName);
+}
+
 function initEventHandling() {
     $('#slider-divisions').on('input', function () {
         var numDivisions = $(this).val();
@@ -85,6 +93,20 @@ function initEventHandling() {
     $('#switchWireFrame').click(function() {
         renderMethod++;
     });
+
+    console.log(myCanvas);
+
+    myCanvas.on("mousedown", function(e){
+        handleMouseDown(e);
+    });
+
+    $(window).on("mouseup", function(e){
+        handleMouseUp(e);
+    });
+
+    $(window).on('mousemove', function(e){
+        handleMouseMove(e);
+    })
 }
 
 function getAllDrawables() {return allDrawables}
