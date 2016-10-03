@@ -52,7 +52,7 @@ function handleJSONModel( filename, payload ) {
 	normalsBuffer = getVertexBufferWithVertices(payload.normals);
 	indexBuffer = getIndexBufferWithIndices(payload.indices);
 	
-	//init lights
+	//update lights
 	initLights();
 	//Starts rendering loop, calls drawScene
 	renderLoop();	

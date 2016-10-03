@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="css/stylesheet.css">
+    <!-- import of webgl utilities -->
+    <script src="../sharedJs/jquery-3.1.0.min.js"></script>
+    <script src="../sharedJs/commonFunctions.js"></script>
+    <script src="../sharedJs/gl-matrix-min.js"></script>
+    <script src="../sharedJs/debug/webgl-debug.js"></script>
+    <script src="../sharedJs/webglTools.js"></script>
+    <!-- import application scripts -->
+    <script src="js/SceneObjectInterfaces/DrawableInterface.js"></script>
+    <script src="js/SceneObjectInterfaces/PlanetInterface.js"></script>
+    <script src="js/SceneObjects/Drawable.js"></script>
+    <script src="js/SceneObjects/Planet.js"></script>
+    <script src="js/Scene.js"></script>
+    <script src="js/Controller.js"></script>
+
+    <!-- vertex shader -->
+    <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;
+			attribute vec4 aColor;
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			varying vec4 vColor;
+			void main(void) {
+				vColor = aColor;
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			}            
+
+
+    </script>
+
+    <!-- fragment shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+			#ifdef GL_ES
+				precision highp float;
+			#endif
+				varying vec4 vColor;
+				void main(void) {
+				  gl_FragColor = vColor;
+				}
+
+
+    </script>
+</head>
+<!-- initialize webgl onload -->
+<body>
+<!-- webgl canvas -->
+<canvas id="webgl-canvas" width="500" height="500">
+    HTML5 is not supported
+</canvas>
+<input id="slider-divisions" type="range" value="8" max="100" min="3" step="1">
+<button id="switchWireFrame">Shape / Wireframe</button>
+</body>
+</html>

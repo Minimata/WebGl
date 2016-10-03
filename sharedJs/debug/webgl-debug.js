@@ -46,6 +46,16 @@ function logAndValidate(functionName, args) {
     validateNoneOfTheArgsAreUndefined(functionName, args);
 }
 
+function GlContextError(message) {
+    this.errorName = "GlContextError";
+    this.message = message;
+}
+
+function BadIdGettingException(message) {
+    this.errorName = "BadIdGettingException";
+    this.message = message;
+}
+
 function BadInitShaderException(message) {
     this.errorName = "BadInitShaderException";
     this.message = message;
@@ -885,7 +895,7 @@ WebGLDebugUtils = function () {
          * Gets an string version of an WebGL enum.
          *
          * Example:
-         *   WebGLDebugUtil.init(ctx);
+         *   WebGLDebugUtil.update(ctx);
          *   var str = WebGLDebugUtil.glEnumToString(ctx.getError());
          *
          * @param {number} value Value to return an enum for
@@ -898,7 +908,7 @@ WebGLDebugUtils = function () {
          * Attempts to convert enum arguments to strings.
          *
          * Example:
-         *   WebGLDebugUtil.init(ctx);
+         *   WebGLDebugUtil.update(ctx);
          *   var str = WebGLDebugUtil.glFunctionArgToString('bindTexture', 2, 0, gl.TEXTURE_2D);
          *
          * would return 'TEXTURE_2D'

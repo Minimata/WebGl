@@ -12,12 +12,24 @@ var colors = [];
 
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
+var translationMat = mat4.create();
+var vector3 = vec3.create();
 
 var withPerspective = true;
-var rotationAroundZ = 0;
-var indexCounter = 0;
+var rotationAroundZ = 0, displacement = 1;
 
 window.onload = displayTitle("Ch04_ex1");
+
+function cameraJiggle() {
+    rotationAroundZ += 0.02;
+    requestAnimationFrame(cameraJiggle);
+}
+
+function increaseTriangleDisplacement() {
+    displacement += 0.01;
+    if(displacement >= 10) displacement = 1;
+    requestAnimationFrame(increaseTriangleDisplacement);
+}
 
 function initShaderParameters(prg) {
     prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
@@ -32,11 +44,15 @@ function initShaderParameters(prg) {
 
 function initBuffers() {
     //createCheckBoard(8);
-    //triangleFractal();
-    triangleCeption();
+    //triangleCeption(10, 10);
+
+    vertices = [];
+    colors = [];
+    indices = [];
+    triangleCeption(10, displacement);
 
     //DEBUG HELP
-    if(vertices.length != (colors.length - (vertices.length/3))){
+    if (vertices.length != (colors.length - (vertices.length / 3))) {
         throw new BadInitBufferException("Vertices and colors need to be the same length");
     }
 
@@ -45,101 +61,53 @@ function initBuffers() {
     indexBuffer = getIndexBufferWithIndices(indices);
 }
 
-function triangleFractal() {
-    vertices.push(-1.0, -1.0, 0.0);
-    vertices.push(1.0, -1.0, 0.0);
-    vertices.push(0.0, 1.0, 0.0);
-    colors.push(1.0, 0.0, 0.0, 1.0);
-    colors.push(0.0, 1.0, 0.0, 1.0);
-    colors.push(0.0, 0.0, 1.0, 1.0);
-
-    for(var i = 1; i<= 100; i++) {
-        var Apoint = [vertices[9*i-9], vertices[9*i-8], vertices[9*i-7]];
-        var Bpoint = [vertices[9*i-6], vertices[9*i-5], vertices[9*i-4]];
-        var Cpoint = [vertices[9*i-3], vertices[9*i-2], vertices[9*i-1]];
-        var newA = midPoint(Apoint, Bpoint, 2);
-        var newB = midPoint(Bpoint, Cpoint, 2);
-        var newC = midPoint(Cpoint, Apoint, 2);
-        vertices.push(newA[0], newA[1], newA[2]-(0.1));
-        vertices.push(newB[0], newB[1], newB[2]-(0.1));
-        vertices.push(newC[0], newC[1], newC[2]-(0.1));
-
-        var x = i%3, y = (i+1)%3, z = (i+2)%3;
-        if(x==1) {
-            y=0;
-            z=0;
-        }
-        else if(y==1) {
-            x=0;
-            z=0;
-        }
-        else if(z==1) {
-            x=0;
-            y=0;
-        }
-
-        colors.push(x, y, z, 1.0);
-        colors.push(z, x, y, 1.0);
-        colors.push(y, z, x, 1.0);
-
-        indices.push(i-1);
-    }
-}
-
-function triangleCeption() {
+function triangleCeption(numberOfTriangles = 10, triangleDisplacement = 10) {
     vertices.push(-1.0, -1.0, 0.0);
     vertices.push(1.0, -1.0, 0.0);
     vertices.push(0.0, 1.0, 0.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
     colors.push(0.0, 0.0, 1.0, 1.0);
+    indices.push(0, 1, 2);
 
-    for(var i = 1; i<= 30; i++) {
-        var Apoint = [vertices[9*i-9], vertices[9*i-8], vertices[9*i-7]];
-        var Bpoint = [vertices[9*i-6], vertices[9*i-5], vertices[9*i-4]];
-        var Cpoint = [vertices[9*i-3], vertices[9*i-2], vertices[9*i-1]];
-        var newA = midPoint(Apoint, Bpoint, 10);
-        var newB = midPoint(Bpoint, Cpoint, 10);
-        var newC = midPoint(Cpoint, Apoint, 10);
+    for (var i = 1; i <= numberOfTriangles; i++) {
+        var Apoint = [vertices[9 * i - 9], vertices[9 * i - 8], vertices[9 * i - 7]];
+        var Bpoint = [vertices[9 * i - 6], vertices[9 * i - 5], vertices[9 * i - 4]];
+        var Cpoint = [vertices[9 * i - 3], vertices[9 * i - 2], vertices[9 * i - 1]];
+        var newA = midPoint(Apoint, Bpoint, triangleDisplacement);
+        var newB = midPoint(Bpoint, Cpoint, triangleDisplacement);
+        var newC = midPoint(Cpoint, Apoint, triangleDisplacement);
         vertices.push(newA[0], newA[1], -(i*0.1));
         vertices.push(newB[0], newB[1], -(i*0.1));
         vertices.push(newC[0], newC[1], -(i*0.1));
 
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
-        colors.push(0.0, 0.0, 1.0, 1.0 / i);
+        colors.push(0.0, 0.0, 1.0 / (i+1), 1.0 / (i + 1));
+        colors.push(0.0, 0.0, 1.0 / (i+1), 1.0 / (i + 1));
+        colors.push(0.0, 0.0, 1.0 / (i+1), 1.0 / (i + 1));
 
-        indices.push(i-1);
+        indices.push(3*i, 3*i + 1, 3*i + 2);
     }
-
-    window.setInterval(function() {
-        rotationAroundZ += 0.1;
-        indexCounter++;
-    }, 16);
 }
 
 function midPoint(A, B, portion) {
     var ABVector = [(B[0] - A[0]), (B[1] - A[1]), (B[2] - A[2])];
-    return [(A[0] + ABVector[0]/portion), (A[1] + ABVector[1]/portion), (A[2] + ABVector[2]/portion)];
+    return [(A[0] + ABVector[0] / portion), (A[1] + ABVector[1] / portion), (A[2] + ABVector[2] / portion)];
 }
 
 function createCheckBoard(numberOfSquaresBySide) {
     var squareSize = 2.0 / numberOfSquaresBySide;
     var posX = -1.0, posY = -1.0;
-    for(var numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++){
+
+    for (var numSquareX = 0; numSquareX < numberOfSquaresBySide; numSquareX++) {
         posY = -1.0;
-        for(var numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++){
-            if(((numSquareX + numSquareY) % 2) == 0) {
-                createSquare(posX, posY, squareSize);
-            }
+        for (var numSquareY = 0; numSquareY < numberOfSquaresBySide; numSquareY++) {
+            if (((numSquareX + numSquareY) % 2) == 0) createSquare(posX, posY, squareSize);
             posY += squareSize;
         }
         posX += squareSize;
     }
 
-    for (var i = 0; i < vertices.length / 3; i++) {
-        indices.push(i);
-    }
+    for (var i = 0; i < vertices.length / 3; i++) indices.push(i);
 }
 
 function createSquare(botLeftX, botLeftY, size) {
@@ -161,6 +129,8 @@ function createSquare(botLeftX, botLeftY, size) {
 }
 
 function drawScene() {
+    initBuffers(); //This is for animated triangle shaping.
+
     var a, b, c;
     glContext.clearColor(0.9, 0.9, 0.9, 1.0);
     glContext.enable(glContext.DEPTH_TEST);
@@ -169,24 +139,21 @@ function drawScene() {
 
     mat4.identity(pMatrix);
     mat4.identity(mvMatrix);
+    vec3.set(vector3, 0, 0, 0);
 
     if (withPerspective) {
         mat4.perspective(pMatrix, degToRad(60), c_width / c_height, 0.1, 10000);
-        b = 0.1 * Math.cos(rotationAroundZ);
         a = 0.1 * Math.sin(rotationAroundZ);
+        b = 0.1 * Math.cos(rotationAroundZ);
         c = -2;
-        translationMat = mat4.create();
+        vec3.set(vector3, a, b, c);
         mat4.identity(translationMat);
-        mat4.translate(translationMat, translationMat, [b, a, c]);
+        mat4.translate(translationMat, translationMat, vector3);
         mat4.multiply(mvMatrix, translationMat, mvMatrix);
         mvMatrix = mat4.rotateY(mvMatrix, mvMatrix, Math.PI);
     } else {
-        b = 0.1 * Math.cos(rotationAroundZ);
-        a = 0.1 * Math.sin(rotationAroundZ);
-        c = 0;
-        translationMat = mat4.create();
         mat4.identity(translationMat);
-        mat4.translate(translationMat, translationMat, [b, a, c]);
+        mat4.translate(translationMat, translationMat, vector3);
         mat4.multiply(mvMatrix, translationMat, mvMatrix);
     }
 
@@ -200,7 +167,7 @@ function drawScene() {
     glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
 
     glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glContext.drawElements(glContext.TRIANGLES,indices.length, glContext.UNSIGNED_SHORT,0);
+    glContext.drawElements(glContext.TRIANGLES, indices.length, glContext.UNSIGNED_SHORT, 0);
 }
 
 function initWebGL() {
@@ -208,20 +175,15 @@ function initWebGL() {
         glContext = getGLContext('webgl-canvas');
         initProgram();
         initBuffers();
-        renderLoop(60.0);
+        increaseTriangleDisplacement(); //for animated triangle shaping
+        cameraJiggle(); //to see the perspective
+        renderLoop();
     }
     catch (e) {
-        console.log(e);
-        if(e.message) console.log(e.message); //comfort of use
-    }
-    finally {
+        console.error(e);
     }
 }
 
 function changeProjectionMode() {
-    if (withPerspective) {
-        withPerspective = 0
-    } else {
-        withPerspective = 1
-    }
-};
+    withPerspective = !withPerspective;
+}
