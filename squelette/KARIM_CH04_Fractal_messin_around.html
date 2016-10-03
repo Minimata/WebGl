@@ -73,9 +73,10 @@
 			colors.push(0.0, 1.0, 0.0, 1.0); 
 			colors.push(0.0, 0.0, 1.0, 1.0);
 			colors.push(1.0, 0.0, 0.0, 1.0);
+			indices.push(0, 1, 2);
 			
 			//this loop generates X triangle vertices with their colors rotating through RGB
-			for(i = 1; i<= 27; i++)
+			for(i = 1; i<= 30; i++)
 				{
 					var Apoint = [vertices[9*i-9], vertices[9*i-8], vertices[9*i-7]];
 					var Bpoint = [vertices[9*i-6], vertices[9*i-5], vertices[9*i-4]];
@@ -97,7 +98,7 @@
 					colors.push(z, x, y, 1.0); 
 					colors.push(y, z, x, 1.0);
 					
-					indices.push(i-1);
+					indices.push(3*i-3, 3*i-2, 3*i-1);
 				}
 			
 			vertexBuffer = getVertexBufferWithVertices(vertices);
