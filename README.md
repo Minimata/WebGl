@@ -26,6 +26,14 @@ Define methods to catch errors and exceptions to throw in case of errors caught.
 
 deleted useless code and arguments.
 
+## How to get it working on your project
+
+Copy my webglTools.js from sharedJs directory and use it to overwrite the old one.
+Include webgl-debug.js in your html code.
+Put your calls to any webglTools.js (usually in initWebGl method) in a try - catch block.
+
+That's it ! >ou're ready to go !
+
 ## Recommendations
 
 Install WebGL Inspector for further debug (available as add-on in Chrome and Firefox at least). Google it yourself, I'm lazy.
