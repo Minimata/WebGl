@@ -36,7 +36,29 @@
           varying vec4 vColor;
 		  varying vec3 vVertexPosition;
         void main(void) {
-			gl_FragColor = vColor * vec4(vVertexPosition, 1.0);
+			//handle Ys
+			if(((vVertexPosition[1]<=1.0) && (vVertexPosition[1]>0.75))||((vVertexPosition[1]<=0.75) && (vVertexPosition[1]>0.50))){
+				//handle Xs
+				if((vVertexPosition[0]<=1.0) && (vVertexPosition[0]>0.75)){
+					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
+				if((vVertexPosition[0]<=0.75) && (vVertexPosition[0]>0.50)){
+					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
+				if((vVertexPosition[0]<=0.50) && (vVertexPosition[0]>0.25)){
+					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
+				if((vVertexPosition[0]<=0.25) && (vVertexPosition[0]>0.0)){
+					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
+				if((vVertexPosition[0]<=0.0) && (vVertexPosition[0]>-0.25)){
+					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
+				if((vVertexPosition[0]<=-0.25) && (vVertexPosition[0]>-0.5)){
+					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
+				if((vVertexPosition[0]<=-0.5) && (vVertexPosition[0]>-0.75)){
+					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
+				if((vVertexPosition[0]<=-0.75) && (vVertexPosition[0]>-1.0)){
+					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
+			}
+			else{
+				gl_FragColor = vec4(0.0,0.0,0.0,1.0);
+			}
         }
     </script>
     <script src="jsExos/KARIM_CH04_ChessBoard_Hot.js"></script>
