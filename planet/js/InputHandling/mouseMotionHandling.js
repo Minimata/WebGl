@@ -26,7 +26,7 @@ function handleMouseMove(event) {
         dX = x - oldMousePos.x;
         dY = y - oldMousePos.y;
 
-        console.log((x - oldMousePos.x) + ", " + (y - oldMousePos.y)); //--- DEBUG LINE ---
+        // console.log((x - oldMousePos.x) + ", " + (y - oldMousePos.y)); //--- DEBUG LINE ---
 
         rotY += dX > 0 ? rotSpeed : dX < 0 ? -rotSpeed : 0;
         rotX += dY > 0 ? rotSpeed : dY < 0 ? -rotSpeed : 0;

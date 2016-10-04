@@ -94,8 +94,6 @@ function initEventHandling() {
         renderMethod++;
     });
 
-    console.log(myCanvas);
-
     myCanvas.on("mousedown", function(e){
         handleMouseDown(e);
     });
@@ -117,4 +115,6 @@ function updateScene() {
         allDrawables[name].x = allPositions[name].x * (1 + Math.sin(jiggle) / 10);
         planetInt.update();
     });
+
+    rotateModelViewMatrixUsingQuaternion();
 }
