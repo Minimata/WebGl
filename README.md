@@ -32,7 +32,7 @@ Copy my webglTools.js from sharedJs directory and use it to overwrite the old on
 Include webgl-debug.js in your html code.
 Put your calls to any webglTools.js (usually in initWebGl method) in a try - catch block.
 
-That's it ! >ou're ready to go !
+That's it ! You're ready to go !
 
 ## Recommendations
 
