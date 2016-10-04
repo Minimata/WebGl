@@ -17,12 +17,12 @@
         attribute vec4 aColor;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
-        varying vec4 vColor;
 		varying vec3 vVertexPosition;
+		varying vec4 vColor;
         void main(void) {
-          vColor = aColor;
-		  vVertexPosition = aVertexPosition;
-          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vColor = aColor;
+			vVertexPosition = (aVertexPosition);
+			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
     </script>
 
@@ -33,33 +33,17 @@
         #ifdef GL_ES
           precision highp float;
         #endif
-          varying vec4 vColor;
-		  varying vec3 vVertexPosition;
+		varying vec4 vColor;
+		varying vec3 vVertexPosition;
         void main(void) {
-			//handle Ys
-			if(((vVertexPosition[1]<=1.0) && (vVertexPosition[1]>0.75))||((vVertexPosition[1]<=0.75) && (vVertexPosition[1]>0.50))){
-				//handle Xs
-				if((vVertexPosition[0]<=1.0) && (vVertexPosition[0]>0.75)){
-					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
-				if((vVertexPosition[0]<=0.75) && (vVertexPosition[0]>0.50)){
-					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
-				if((vVertexPosition[0]<=0.50) && (vVertexPosition[0]>0.25)){
-					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
-				if((vVertexPosition[0]<=0.25) && (vVertexPosition[0]>0.0)){
-					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
-				if((vVertexPosition[0]<=0.0) && (vVertexPosition[0]>-0.25)){
-					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
-				if((vVertexPosition[0]<=-0.25) && (vVertexPosition[0]>-0.5)){
-					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
-				if((vVertexPosition[0]<=-0.5) && (vVertexPosition[0]>-0.75)){
-					gl_FragColor = vec4(0.0,0.0,0.0,1.0);}
-				if((vVertexPosition[0]<=-0.75) && (vVertexPosition[0]>-1.0)){
-					gl_FragColor = vec4(1.0,1.0,1.0,1.0);}
-			}
-			else{
-				gl_FragColor = vec4(0.0,0.0,0.0,1.0);
-			}
-        }
+			//PLZ SOMEONETELL ME WHAT I DID HERE
+			vec4 black = vec4(0.0,0.0,0.0,1.0);
+			vec4 white = vec4(1.0,1.0,1.0,1.0);
+			float total = floor(vVertexPosition[0]*4.0) + floor(vVertexPosition[1]*4.0);
+			bool isEven = mod(total,2.0)==0.0;
+			gl_FragColor = (isEven)? black:white;
+		}
+        
     </script>
     <script src="jsExos/KARIM_CH04_ChessBoard_Hot.js"></script>
 

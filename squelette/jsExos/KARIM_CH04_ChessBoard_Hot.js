@@ -68,7 +68,7 @@ function createSquare() {
     colors.push(1.0, 1.0, 1.0, transparency);
     colors.push(1.0, 1.0, 1.0, transparency);
     colors.push(1.0, 1.0, 1.0, transparency);
-	//pronounce triangle strip draw order
+	//pronounce triangles draw order
 	indices.push(0,1,2,2,3,0);
 }
 
