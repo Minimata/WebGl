@@ -7,21 +7,23 @@
     <script src="../sharedJs/debug/webgl-debug.js"></script>
     <script src="../sharedJs/webglTools.js"></script>
     <script src="../sharedJs/commonFunctions.js"></script>
-    <script src="../sharedJs/debug/webgl-debug.js"></script>
 
     <!-- /////////////////\\\\\\\\\\\\\\\\ -->
     <!-- //////////VERTEX SHADER\\\\\\\\\\ -->
     <!-- /////////////////\\\\\\\\\\\\\\\\ -->
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
-        attribute vec4 aColor;
+		uniform vec2 uSquares;
+        //attribute vec4 aColor;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
 		varying vec3 vVertexPosition;
-		varying vec4 vColor;
+		varying vec2 vSquares;
+		//varying vec4 vColor;
         void main(void) {
-			vColor = aColor;
-			vVertexPosition = (aVertexPosition);
+			//vColor = aColor;
+			vVertexPosition = aVertexPosition;
+			vSquares = uSquares;
 			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
     </script>
@@ -33,13 +35,14 @@
         #ifdef GL_ES
           precision highp float;
         #endif
-		varying vec4 vColor;
+		//varying vec4 vColor;
+		varying vec2 vSquares;
 		varying vec3 vVertexPosition;
         void main(void) {
 			//PLZ SOMEONETELL ME WHAT I DID HERE
 			vec4 black = vec4(0.0,0.0,0.0,1.0);
 			vec4 white = vec4(1.0,1.0,1.0,1.0);
-			float total = floor(vVertexPosition[0]*4.0) + floor(vVertexPosition[1]*4.0);
+			float total = floor(vVertexPosition[0]*vSquares[0]) + floor(vVertexPosition[1]*vSquares[1]);
 			bool isEven = mod(total,2.0)==0.0;
 			gl_FragColor = (isEven)? black:white;
 		}
@@ -53,5 +56,11 @@
 <canvas id="webgl-canvas" width="750" height="750">
     HTML5 is not supported
 </canvas>
+<p>
+<input type="range" id="rangeX" min="1" max="100" value="8" step="1" onChange="changeX(this.value)" />
+Number of Squares Horizontally</p>
+<p>
+<input type="range" id="rangeY" min="1" max="100" value="8" step="1" onChange="changeY(this.value)" />
+Number of Squares Vertically</p>
 </body>
 </html>
