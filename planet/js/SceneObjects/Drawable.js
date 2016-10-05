@@ -14,7 +14,8 @@ class Drawable {
             g: 1.0,
             b: 1.0,
             a: 1.0,
-            renderingMethod: "TRIANGLES"
+            renderingMethod: "TRIANGLES",
+            children: null
         };
 
         this._id = this._defaultValues.id;
@@ -26,6 +27,7 @@ class Drawable {
         this._b = this._defaultValues.b;
         this._a = this._defaultValues.a;
         this._renderingMethod = this._defaultValues.renderingMethod;
+        this._children = this._defaultValues.children;
 
         this.extractObjects(this, args);
 
@@ -83,6 +85,8 @@ class Drawable {
     set colors          (c)     {this._colors = c}
     get mvMatrix        ()      {return this._mvMatrix}
     set mvMatrix        (m)     {this._mvMatrix = m}
+    get children        ()      {return this._children}
+    set children        (c)     {this._children = c}
 
     getColors   ()  {return {r: this._r, g: this._g, b: this.b, a: this._a}}
     setColors   (...args)  {
@@ -116,20 +120,25 @@ class Drawable {
         });
     }
 
-    draw(render = this._renderingMethod) {
+    draw(render = this._renderingMethod, parentMatrix) {
         if(!render) throw ReferenceError("No rendering method defined");
         if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
 
-        glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, this.mvMatrix);
+        mat4.multiply(mvMatrix, parentMatrix, this._mvMatrix);
+        glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
 
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, this.vertexBuffer);
+        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._vertexBuffer);
         glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0);
-
-        glContext.bindBuffer(glContext.ARRAY_BUFFER, this.colorBuffer);
+        glContext.bindBuffer(glContext.ARRAY_BUFFER, this._colorBuffer);
         glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
+        glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 
-        glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.renderingMethods[render]();
 
-        return this.renderingMethods[render]();
+        if(this._children) {
+            $.each(this._children, function(name, value) {
+                value.draw(render, mvMatrix);
+            });
+        }
     }
 }

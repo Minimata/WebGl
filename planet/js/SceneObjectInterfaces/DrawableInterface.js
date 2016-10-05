@@ -26,6 +26,12 @@ class DrawableInterface {
         //Defines the position matrix of the object
         mat4.identity(drawable.mvMatrix);
         mat4.translate(drawable.mvMatrix, drawable.mvMatrix, vec3.fromValues(drawable.x, drawable.y, drawable.z));
+
+        if(drawable.children){
+            $.each(drawable.children, function(name, value) {
+                planetInt.update(value);
+            });
+        }
     }
 
     /**

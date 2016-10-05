@@ -19,7 +19,8 @@ class Planet extends Drawable{
 
         Object.assign(this._renderingMethods, {
             LINES: this.LINES,
-            TRIANGLES: this.TRIANGLES
+            TRIANGLES: this.TRIANGLES,
+            TRIANGLE_FAN: this.TRIANGLE_FAN
         })
     }
 
@@ -34,6 +35,10 @@ class Planet extends Drawable{
 
     TRIANGLES() {
         return glContext.drawElements(glContext.TRIANGLES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
+    }
+
+    TRIANGLE_FAN() {
+        return glContext.drawElements(glContext.TRIANGLE_FAN, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
     }
 }
 
