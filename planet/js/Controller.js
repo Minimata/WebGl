@@ -9,7 +9,7 @@ var planetInt = new PlanetInterface();
 
 var allPositions = {
     "Earth": {x: 1.0, y:0.0, z:0.0},
-    "Moon": {x: -0.6, y:0.0, z:0.0},
+    "Moon": {x: -1.0, y:0.0, z:0.0},
     "Mars": {x: 0.5, y:0.2, z:0.0}
 };
 
@@ -20,9 +20,9 @@ var allColors = {
 };
 
 var allPlanetProperties = {
-    "Earth": {radius: 0.4, divisions: 100},
-    "Moon": {radius: 0.5, divisions: 100},
-    "Mars": {radius: 0.8, divisions: 100}
+    "Earth": {radius: 0.8, divisions: 100, rotateSpeed: 1},
+    "Moon": {radius: 0.2, divisions: 100, rotateSpeed: 5},
+    "Mars": {radius: 0.6, divisions: 100, rotateSpeed: 1}
 };
 
 var renderMethods = [
@@ -83,7 +83,7 @@ function initEventHandling() {
     $('#slider-divisions').on('input', function () {
         var numDivisions = $(this).val();
         $.each(allDrawables, function (name, planet) {
-            planet.divisions = numDivisions;
+            planet["divisions"] = numDivisions;
             planetInt.update(planet);
         });
     });
@@ -114,6 +114,9 @@ function getAllDrawables() {return allDrawables}
 
 function updateScene() {
     $.each(allDrawables, function(name, value) {
-        planetInt.update(value)
-    })
+        planetInt.update(value);
+        PlanetInterface.rotateAroundParent(value, [0, 0, 1], value.rotateSpeed);
+    });
+
+    rotateModelViewMatrixUsingQuaternion();
 }

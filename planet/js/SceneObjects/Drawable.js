@@ -14,7 +14,7 @@ class Drawable {
             g: 1.0,
             b: 1.0,
             a: 1.0,
-            renderingMethod: "TRIANGLES",
+
             children: null
         };
 
@@ -26,7 +26,6 @@ class Drawable {
         this._g = this._defaultValues.g;
         this._b = this._defaultValues.b;
         this._a = this._defaultValues.a;
-        this._renderingMethod = this._defaultValues.renderingMethod;
         this._children = this._defaultValues.children;
 
         this.extractObjects(this, args);
@@ -55,11 +54,20 @@ class Drawable {
     get id  ()      {return this._id;}
     set id  (id)    {this._id = id;}
     get x   ()      {return this._x}
-    set x   (x)     {this._x = x}
+    set x   (x)     {
+        this._x = x;
+        this.propagateToChildren("x", x);
+    }
     get y   ()      {return this._y}
-    set y   (y)     {this._y = y}
+    set y   (y)     {
+        this._y = y;
+        this.propagateToChildren("y", y);
+    }
     get z   ()      {return this._z}
-    set z   (z)     {this._z = z}
+    set z   (z)     {
+        this._z = z;
+        this.propagateToChildren("z", z);
+    }
     get r   ()      {return this._r}
     set r   (r)     {this._r = r}
     get g   ()      {return this._g}
@@ -98,10 +106,17 @@ class Drawable {
     }
     getPos     ()  {return{x: this._x, y: this._y, z: this._z}}
     setPos   (...args)  {
-        var {x = this._x, y = this._y, z = this._z} = args;
         this._x = x;
         this._y = y;
         this._z = z;
+    }
+    setPosFromVec (v) {
+        this._x = v[0];
+        this._y = v[1];
+        this._z = v[2];
+    }
+    getPosAsVec () {
+        return vec3.fromValues(this._x, this._y, this._z);
     }
 
     extractObjects(obj, args) {
@@ -120,7 +135,7 @@ class Drawable {
         });
     }
 
-    draw(render = this._renderingMethod, parentMatrix) {
+    draw(render, parentMatrix) {
         if(!render) throw ReferenceError("No rendering method defined");
         if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
 
@@ -138,6 +153,14 @@ class Drawable {
         if(this._children) {
             $.each(this._children, function(name, value) {
                 value.draw(render, mvMatrix);
+            });
+        }
+    }
+
+    propagateToChildren(attr, val) {
+        if(this._children) {
+            $.each(this._children, function(name, value) {
+                value[attr] = val;
             });
         }
     }

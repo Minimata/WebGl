@@ -3,14 +3,13 @@
  */
 
 class DrawableInterface {
-    constructor(drawable = null) {
-        this.drawable = drawable;
+    constructor() {
         if (new.target === DrawableInterface) {
             throw new TypeError("Cannot construct DrawableInterface instances directly (abstract class)");
         }
     }
 
-    update(drawable = this.drawable) {
+    update(drawable) {
         if(!drawable) throw ReferenceError("Null Drawable cannot be updated");
         drawable.vertices = [];
         drawable.colors = [];

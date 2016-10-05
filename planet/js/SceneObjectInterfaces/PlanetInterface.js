@@ -7,8 +7,7 @@ class PlanetInterface extends DrawableInterface {
         super(drawable);
     }
 
-    fillArrays(drawable = this.drawable) {
-
+    fillArrays(drawable) {
         var i;
         drawable.vertices.push(0.0, 0.0, 0.0);
 
@@ -28,5 +27,26 @@ class PlanetInterface extends DrawableInterface {
         }
 
         drawable.indices.push(0, drawable.divisions, 1);
+    }
+
+    static rotateAroundParent(drawable, axis, step) {
+        step = degToRad(step);
+        var rotQuat, rotVec;
+        rotQuat = quat.create();
+        quat.setAxisAngle(rotQuat, axis, step);
+        rotVec = vec3.create();
+        vec3.set(rotVec, drawable.x, drawable.y, drawable.z);
+        vec3.transformQuat(rotVec, rotVec, rotQuat);
+        drawable.setPosFromVec(rotVec);
+
+        if(drawable.children) {
+            $.each(drawable.children, function(name, value) {
+                PlanetInterface.rotateAroundParent(value, axis, value.rotateSpeed);
+            })
+        }
+    }
+
+    static rotateAroundPoint(drawable, point, axis, step) {
+
     }
 }
