@@ -9,8 +9,8 @@ var planetInt = new PlanetInterface();
 
 var allPositions = {
     "Earth": {x: 1.0, y:0.0, z:0.0},
-    "Moon": {x: -1.0, y:0.0, z:0.0},
-    "Mars": {x: 0.5, y:0.2, z:0.0}
+    "Moon": {x: -1.3, y:0.0, z:0.0},
+    "Mars": {x: -2.0, y:0.0, z:0.0}
 };
 
 var allColors = {
@@ -20,9 +20,9 @@ var allColors = {
 };
 
 var allPlanetProperties = {
-    "Earth": {radius: 0.8, divisions: 100, rotateSpeed: 1},
-    "Moon": {radius: 0.2, divisions: 100, rotateSpeed: 5},
-    "Mars": {radius: 0.6, divisions: 100, rotateSpeed: 1}
+    "Earth": {radius: 0.8, divisions: 100, rotateSpeed: 0.1},
+    "Moon": {radius: 0.2, divisions: 100, rotateSpeed: 0.5},
+    "Mars": {radius: 0.8, divisions: 100, rotateSpeed: 0.3}
 };
 
 var renderMethods = [
@@ -88,17 +88,9 @@ function initEventHandling() {
         });
     });
 
-    myCanvas.on("mousedown", function(e){
-        handleMouseDown(e);
-    });
-
-    $(window).on("mouseup", function(e){
-        handleMouseUp(e);
-    });
-
-    $(window).on('mousemove', function(e){
-        handleMouseMove(e);
-    })
+    myCanvas.on("mousedown", handleMouseDown);
+    $(window).on("mouseup",  handleMouseUp);
+    $(window).on('mousemove',  handleMouseMove);
 }
 
 function initRenderingMethods() {
@@ -117,6 +109,4 @@ function updateScene() {
         planetInt.update(value);
         PlanetInterface.rotateAroundParent(value, [0, 0, 1], value.rotateSpeed);
     });
-
-    rotateModelViewMatrixUsingQuaternion();
 }

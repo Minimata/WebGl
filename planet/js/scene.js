@@ -7,7 +7,7 @@ var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
 var absoluteMatrix = mat4.create();
 
-var a = 0.0, b = 0.0, c = -1.0;
+var a = 0.0, b = 0.0, c = -8.0;
 
 /**
  * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
@@ -30,7 +30,7 @@ function initScene() {
 	glContext.enable(glContext.DEPTH_TEST);
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
 
-	mat4.perspective(pMatrix, degToRad(120), c_width / c_height, 0.1, 1000);
+	mat4.perspective(pMatrix, degToRad(45), c_width / c_height, 0.1, 1000);
 	glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
 }
 
@@ -39,6 +39,8 @@ function drawScene() {
 
 	mat4.identity(mvMatrix);
 	mat4.fromTranslation(absoluteMatrix, vec3.fromValues(a, b, c));
+	rotateModelViewMatrixUsingQuaternion();
+	//glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
 
 	$.each(getAllDrawables(), function(name, drawable) {
 		drawable.draw($('#' + selectName).val(), absoluteMatrix);
