@@ -135,11 +135,11 @@ class Drawable {
         });
     }
 
-    draw(render, parentMatrix) {
+    draw(render, mvMatrix, parent) {
         if(!render) throw ReferenceError("No rendering method defined");
         if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
 
-        mat4.multiply(mvMatrix, parentMatrix, this._mvMatrix);
+        mat4.multiply(mvMatrix, parent, this._mvMatrix);
         glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
 
         glContext.bindBuffer(glContext.ARRAY_BUFFER, this._vertexBuffer);
@@ -152,7 +152,7 @@ class Drawable {
 
         if(this._children) {
             $.each(this._children, function(name, value) {
-                value.draw(render, mvMatrix);
+                value.draw(render, mvMatrix, mvMatrix);
             });
         }
     }
