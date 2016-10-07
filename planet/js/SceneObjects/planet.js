@@ -9,24 +9,35 @@ class Planet extends Drawable{
 
         Object.assign(this._defaultValues, {
             radius: 0.5,
-            divisions: 100
+            divisions: 100,
+            rotateSpeed: 0.1
         });
 
         this._radius = this._defaultValues.radius;
         this._divisions = this._defaultValues.divisions;
+        this._rotateSpeed = this._defaultValues.rotateSpeed;
 
         this.extractObjects(this, args);
 
         Object.assign(this._renderingMethods, {
             LINES: this.LINES,
-            TRIANGLES: this.TRIANGLES
+            TRIANGLES: this.TRIANGLES,
+            TRIANGLE_FAN: this.TRIANGLE_FAN
         })
     }
 
     get divisions   ()      {return this._divisions}
-    set divisions   (div)   {this._divisions = div}
+    set divisions   (div)   {
+        this._divisions = div;
+        this.propagateToChildren("divisions", div);
+    }
     get radius      ()      {return this._radius}
-    set radius      (r)     {this._radius = r}
+    set radius      (r)     {
+        this._radius = r;
+        this.propagateToChildren("radius", r);
+    }
+    get rotateSpeed ()      {return this._rotateSpeed}
+    set rotateSpeed (r)      {this._rotateSpeed = r}
 
     LINES() {
         return glContext.drawElements(glContext.LINES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
@@ -34,6 +45,18 @@ class Planet extends Drawable{
 
     TRIANGLES() {
         return glContext.drawElements(glContext.TRIANGLES, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
+    }
+
+    TRIANGLE_FAN() {
+        return glContext.drawElements(glContext.TRIANGLE_FAN, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
+    }
+
+    distanceFromParent() {
+        return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2) + Math.pow(this._z, 2));
+    }
+
+    angleXY() {
+        return Math.atan2(this._y, this._x);
     }
 }
 

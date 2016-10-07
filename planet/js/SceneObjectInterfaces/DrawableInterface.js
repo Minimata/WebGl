@@ -3,14 +3,13 @@
  */
 
 class DrawableInterface {
-    constructor(drawable = null) {
-        this.drawable = drawable;
+    constructor() {
         if (new.target === DrawableInterface) {
             throw new TypeError("Cannot construct DrawableInterface instances directly (abstract class)");
         }
     }
 
-    update(drawable = this.drawable) {
+    update(drawable) {
         if(!drawable) throw ReferenceError("Null Drawable cannot be updated");
         drawable.vertices = [];
         drawable.colors = [];
@@ -26,6 +25,12 @@ class DrawableInterface {
         //Defines the position matrix of the object
         mat4.identity(drawable.mvMatrix);
         mat4.translate(drawable.mvMatrix, drawable.mvMatrix, vec3.fromValues(drawable.x, drawable.y, drawable.z));
+
+        if(drawable.children){
+            $.each(drawable.children, function(name, value) {
+                planetInt.update(value);
+            });
+        }
     }
 
     /**

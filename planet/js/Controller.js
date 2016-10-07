@@ -4,12 +4,13 @@
 
 var canvasName = 'webgl-canvas';
 var myCanvas;
+var selectName = "switchRenderMethod";
+var planetInt = new PlanetInterface();
 
-var jiggle = 0;
 var allPositions = {
-    "Earth": {x: 0.0, y:0.0, z:0.0},
-    "Moon": {x: -0.6, y:0.0, z:0.0},
-    "Mars": {x: 0.5, y:0.2, z:0.0}
+    "Earth": {x: 1.0, y:0.0, z:0.0},
+    "Moon": {x: -1.3, y:0.0, z:0.0},
+    "Mars": {x: -2.0, y:0.0, z:0.0}
 };
 
 var allColors = {
@@ -19,39 +20,35 @@ var allColors = {
 };
 
 var allPlanetProperties = {
-    "Earth": {radius: 0.5, divisions: 100},
-    "Moon": {radius: 0.2, divisions: 100},
-    "Mars": {radius: 0.4, divisions: 100}
+    "Earth": {radius: 0.8, divisions: 100, rotateSpeed: 0.1},
+    "Moon": {radius: 0.2, divisions: 100, rotateSpeed: 0.5},
+    "Mars": {radius: 0.8, divisions: 100, rotateSpeed: 0.3}
 };
 
-var renderMethod = 0;
 var renderMethods = [
     "TRIANGLES",
-    "LINES"
+    "LINES",
+    "TRIANGLE_FAN"
 ];
 
 var allDrawables = {
     "Earth": new Planet("Earth",
-        renderMethods[renderMethod],
+        renderMethods["TRIANGLES"],
         allColors["Earth"],
         allPositions["Earth"],
-        allPlanetProperties["Earth"]),
-    "Moon": new Planet("Moon",
-        renderMethods[renderMethod],
-        allColors["Moon"],
-        allPositions["Moon"],
-        allPlanetProperties["Moon"]),
+        allPlanetProperties["Earth"],
+        {children: {
+            "Moon": new Planet("Moon",
+                renderMethods["TRIANGLES"],
+                allColors["Moon"],
+                allPositions["Moon"],
+                allPlanetProperties["Moon"])
+        }}),
     "Mars": new Planet("Mars",
-        renderMethods[renderMethod],
+        renderMethods["TRIANGLES"],
         allColors["Mars"],
         allPositions["Mars"],
         allPlanetProperties["Mars"])
-};
-
-var allInterfaces = {
-    "Earth": new PlanetInterface(allDrawables["Earth"]),
-    "Moon": new PlanetInterface(allDrawables["Moon"]),
-    "Mars": new PlanetInterface(allDrawables["Mars"])
 };
 
 window.onload = displayTitle("DEM PLANETS MAN");
@@ -63,6 +60,7 @@ $(function () {
         initProgram();
         initScene();
         initEventHandling();
+        initRenderingMethods();
 
         logicLoop();
         renderLoop();
@@ -84,37 +82,31 @@ function initSceneEssentials() {
 function initEventHandling() {
     $('#slider-divisions').on('input', function () {
         var numDivisions = $(this).val();
-        $.each(allInterfaces, function (name, planetInt) {
-            allDrawables[name].divisions = numDivisions;
-            planetInt.update();
+        $.each(allDrawables, function (name, planet) {
+            planet["divisions"] = numDivisions;
+            planetInt.update(planet);
         });
     });
 
-    $('#switchWireFrame').click(function() {
-        renderMethod++;
-    });
+    myCanvas.on("mousedown", handleMouseDown);
+    $(window).on("mouseup",  handleMouseUp);
+    $(window).on('mousemove',  handleMouseMove);
+}
 
-    myCanvas.on("mousedown", function(e){
-        handleMouseDown(e);
-    });
+function initRenderingMethods() {
+    var select = $('#' + selectName);
 
-    $(window).on("mouseup", function(e){
-        handleMouseUp(e);
-    });
-
-    $(window).on('mousemove', function(e){
-        handleMouseMove(e);
-    })
+    for(var i = 0; i < renderMethods.length; i++){
+        select.append('<option value="' + renderMethods[i] + '">' + renderMethods[i] + "</option>'");
+    }
+    select.find('option[value="1"]').attr("selected",true);
 }
 
 function getAllDrawables() {return allDrawables}
 
 function updateScene() {
-    jiggle += 0.1;
-    $.each(allInterfaces, function (name, planetInt) {
-        allDrawables[name].x = allPositions[name].x * (1 + Math.sin(jiggle) / 10);
-        planetInt.update();
+    $.each(allDrawables, function(name, value) {
+        planetInt.update(value);
+        PlanetInterface.rotateAroundParent(value, [0, 0, 1], value.rotateSpeed);
     });
-
-    rotateModelViewMatrixUsingQuaternion();
 }
