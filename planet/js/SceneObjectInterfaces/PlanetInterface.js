@@ -9,7 +9,7 @@ class PlanetInterface extends DrawableInterface {
 
     fillArrays(drawable) {
         var i;
-        drawable.vertices.push(drawable.x, drawable.y, drawable.z);
+        drawable.vertices.push(0, 0, 0);
         drawable.colors.push(1, 1, 1, 1.0);
 
         for (i = 0; i < 360; i += 360 / drawable.divisions) {
