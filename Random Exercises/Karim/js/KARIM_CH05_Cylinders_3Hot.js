@@ -62,7 +62,6 @@ function initShaderParameters(prg) {
 }
 
 function drawScene() {
-  glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 
 		//Calling draw for each object in our scene
 	for(var i= 0;i<sceneObjects.length;i++)
