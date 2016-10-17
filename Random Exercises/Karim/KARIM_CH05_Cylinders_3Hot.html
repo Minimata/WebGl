@@ -8,6 +8,7 @@
     <script src="../../sharedJs/webglTools.js"></script>
     <script src="../../sharedJs/commonFunctions.js"></script>
 
+
     <!-- /////////////////\\\\\\\\\\\\\\\\ -->
     <!-- //////////VERTEX SHADER\\\\\\\\\\ -->
     <!-- /////////////////\\\\\\\\\\\\\\\\ -->
@@ -16,13 +17,13 @@
         attribute vec4 aColor;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
-		varying vec2 vSquares;
-		varying vec4 vColor;
-		varying vec3 vVertexPosition;
+    		varying vec2 vSquares;
+    		varying vec4 vColor;
+    		varying vec3 vVertexPosition;
         void main(void) {
-			vColor = aColor;
-			vVertexPosition = aVertexPosition;
-			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    			vColor = aColor;
+    			vVertexPosition = aVertexPosition;
+    			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }
     </script>
 
@@ -33,12 +34,11 @@
         #ifdef GL_ES
           precision highp float;
         #endif
-		varying vec4 vColor;
-		varying vec3 vVertexPosition;
+    		varying vec4 vColor;
+    		varying vec3 vVertexPosition;
         void main(void) {
-			gl_FragColor = vColor;
-		}
-
+			    gl_FragColor = vColor;
+		    }
     </script>
     <script src="js/KARIM_CH05_Cylinders.js"></script>
     <script src="js/KARIM_CH05_Cylinders_3Hot.js"></script>
@@ -51,4 +51,5 @@
 </canvas>
 
 </body>
+<script src="../../sharedJs/mouseMotionHandling.js"></script>
 </html>

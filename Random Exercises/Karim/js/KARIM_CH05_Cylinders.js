@@ -14,7 +14,7 @@ class Cylinder{
 
 		this.mvMatrix = mat4.create();
 
-		this.division = 3;
+		this.division = 500;
 		this.height = height;
 		this.radius = radius;
 		this.x = x;
