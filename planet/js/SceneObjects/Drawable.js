@@ -2,8 +2,9 @@
  * Created by alexandre on 28.09.2016.
  */
 
-class Drawable {
+class Drawable extends BaseObject{
     constructor(...args) {
+        super(args);
 
         this._defaultValues = {
             id: "Minimata",
@@ -117,22 +118,6 @@ class Drawable {
     }
     getPosAsVec () {
         return vec3.fromValues(this._x, this._y, this._z);
-    }
-
-    extractObjects(obj, args) {
-        var objArgs = {};
-        var numArgs = [];
-        var i;
-        for (i = 0; i < args.length; i++) {
-            if (args[i] instanceof Object) Object.assign(objArgs, args[i]);
-            else numArgs.push(args[i]);
-        }
-        $.each(obj._defaultValues, function(attr) {
-            if(objArgs[attr] === undefined){
-                (numArgs[0] === undefined) ? obj['_' + attr] = obj._defaultValues[attr] : obj['_' + attr] = numArgs.shift();
-            }
-            else obj['_' + attr] = objArgs[attr]
-        });
     }
 
     draw(render, mvMatrix, parent) {

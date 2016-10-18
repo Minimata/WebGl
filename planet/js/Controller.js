@@ -10,7 +10,7 @@ var planetInt = new PlanetInterface();
 var allPositions = {
     "Earth": {x: 1.0, y:0.0, z:0.0},
     "Moon": {x: -1.3, y:0.0, z:0.0},
-    "Mars": {x: -2.0, y:0.0, z:0.0}
+    "Mars": {x: -2.0, y:0.0, z:-10.0}
 };
 
 var allColors = {
@@ -20,9 +20,9 @@ var allColors = {
 };
 
 var allPlanetProperties = {
-    "Earth": {radius: 0.8, divisions: 100, rotateSpeed: 0.1},
-    "Moon": {radius: 0.2, divisions: 100, rotateSpeed: 0.5},
-    "Mars": {radius: 0.8, divisions: 100, rotateSpeed: 0.3}
+    "Earth": {radius: 0.8, divisions: 10, rotateSpeed: 0.1},
+    "Moon": {radius: 0.2, divisions: 10, rotateSpeed: 0.5},
+    "Mars": {radius: 0.8, divisions: 10, rotateSpeed: 0.3}
 };
 
 var renderMethods = [
@@ -51,7 +51,7 @@ var allDrawables = {
         allPlanetProperties["Mars"])
 };
 
-window.onload = displayTitle("DEM PLANETS MAN");
+//window.onload = displayTitle("DEM PLANETS MAN");
 
 $(function () {
     try {

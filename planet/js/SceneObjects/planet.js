@@ -5,7 +5,7 @@
 
 class Planet extends Drawable{
     constructor(...args) {
-        super(...args);
+        super(args);
 
         Object.assign(this._defaultValues, {
             radius: 0.5,
@@ -49,14 +49,6 @@ class Planet extends Drawable{
 
     TRIANGLE_FAN() {
         return glContext.drawElements(glContext.TRIANGLE_FAN, this._obj.indices.length, glContext.UNSIGNED_SHORT, 0);
-    }
-
-    distanceFromParent() {
-        return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2) + Math.pow(this._z, 2));
-    }
-
-    angleXY() {
-        return Math.atan2(this._y, this._x);
     }
 }
 

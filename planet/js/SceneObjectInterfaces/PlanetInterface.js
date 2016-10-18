@@ -8,6 +8,47 @@ class PlanetInterface extends DrawableInterface {
     }
 
     fillArrays(drawable) {
+        //this.createCircle(drawable);
+        this.createSphere(drawable);
+    }
+
+    createSphere(drawable) {
+
+        var i, j;
+
+        //pole nord
+        drawable.vertices.push(0.0, 0.0, drawable.radius);
+
+        for (i = 0; i < 360; i += 360 / drawable.divisions) {
+            for (j = 0; j < 180; j += 180 / drawable.divisions) {
+                drawable.vertices.push(
+                    drawable.radius * Math.cos(glMatrix.toRadian(i)) * Math.sin(glMatrix.toRadian(j)),
+                    drawable.radius * Math.sin(glMatrix.toRadian(i)) * Math.cos(glMatrix.toRadian(j)),
+                    drawable.radius * Math.cos(glMatrix.toRadian(j))
+                );
+                drawable.colors.push(drawable.r, drawable.g, drawable.b, 1.0);
+            }
+        }
+
+        //pole sud
+        drawable.vertices.push(0.0, 0.0, -drawable.radius);
+
+        //poles
+        for (i = 0; i < drawable.divisions; i++) {
+            drawable.indices.push(0, i*drawable.divisions + 1, (i + 1) * drawable.divisions + 1);
+            drawable.indices.push(
+                Math.pow(drawable.divisions, 2) + 1,
+                i + drawable.divisions - 1,
+                i + 2*drawable.divisions - 1
+            );
+        }
+
+        for (i = 0; i < 360; i += 360 / drawable.divisions) {
+
+        }
+    }
+
+    createCircle(drawable) {
         var i;
         drawable.vertices.push(0, 0, 0);
         drawable.colors.push(1, 1, 1, 1.0);
@@ -16,9 +57,10 @@ class PlanetInterface extends DrawableInterface {
             drawable.vertices.push(
                 drawable.radius * Math.sin(glMatrix.toRadian(i)),
                 drawable.radius * Math.cos(glMatrix.toRadian(i)),
-                drawable.z
+                0.0
             );
         }
+
         for (i = 1; i < drawable.divisions + 1; i++) {
             drawable.colors.push(drawable.r, drawable.g, drawable.b, 1.0);
         }
@@ -47,12 +89,11 @@ class PlanetInterface extends DrawableInterface {
 
         transMat = mat4.create();
         mat4.fromTranslation(transMat, transVec);
-        //vec3.transformMat4(rotVec, rotVec, transMat);
 
         drawable.setPosFromVec(rotVec);
 
-        if(drawable.children) {
-            $.each(drawable.children, function(name, value) {
+        if (drawable.children) {
+            $.each(drawable.children, function (name, value) {
                 PlanetInterface.rotateAroundParent(value, axis, value.rotateSpeed);
             })
         }

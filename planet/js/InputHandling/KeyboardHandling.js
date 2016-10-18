@@ -3,28 +3,61 @@
  */
 
 
-/**
- * keys handling
- *
- * document.onkeydown = function (e) {
+var m_allShortcutsBehaviours = {
+    65: pressedA,
+    68: pressedD,
+    69: pressedE,
+    81: pressedQ,
+    82: pressedR,
+    83: pressedS,
+    87: pressedW
+};
+
+document.onkeydown = function (e) {
     e = e || window.event;//Get event
-    if (e.ctrlKey) {
-        var c = e.which || e.keyCode;//Get key code
-        switch (c) {
-            case 83://Block Ctrl+S
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(c);
-                break;
-        }
+    var c = e.which || e.keyCode;//Get key code
+    //console.log(c);
+    if(m_allShortcutsBehaviours.hasOwnProperty(c)){
+        m_allShortcutsBehaviours[c](e);
     }
 };
 
+function pressedA(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.moveLeft();
+}
 
- $('#id').keydown(function(event){
-    console.log(event.key);
-    console.log(event.keyCode);
-    event.preventDefault();
-    event.stopPropagation();
-});
- */
+function pressedW(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.moveFront();
+}
+
+function pressedS(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.moveBack();
+}
+
+function pressedD(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.moveRight();
+}
+
+function pressedQ(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.moveUp();
+}
+
+function pressedE(e) {
+    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
+    else mainCamera.speed = mainCamera.getDefaultSpeed();
+    mainCamera.movedown();
+}
+
+function pressedR(e) {
+    mainCamera.reset();
+}
