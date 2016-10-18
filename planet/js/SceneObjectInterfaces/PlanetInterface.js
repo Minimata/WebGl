@@ -8,8 +8,8 @@ class PlanetInterface extends DrawableInterface {
     }
 
     fillArrays(drawable) {
-        //this.createCircle(drawable);
-        this.createSphere(drawable);
+        this.createCircle(drawable);
+        //this.createSphere(drawable);
     }
 
     createSphere(drawable) {

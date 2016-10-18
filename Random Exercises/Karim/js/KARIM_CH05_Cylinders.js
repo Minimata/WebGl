@@ -28,21 +28,21 @@ class Cylinder{
 		//this variable is used to offset the center points from exterior points
 		var offset = 2;
 		//define base circle center for cylinder, to be extruded upwards
-		this.vertices.push(this.x,this.y,this.z)
+		this.vertices.push(0, 0, 0)
 		//define end point circle center
-		this.vertices.push(this.x,this.y,this.z+this.height)
+		this.vertices.push(0, 0, this.height)
 		//define rim for base circle
 		for(var i = 0;i<360;i+=360/this.division)
 		{
-			this.vertices.push(this.radius * Math.sin(glMatrix.toRadian(i)), this.radius * Math.cos(glMatrix.toRadian(i)),this.z);
+			this.vertices.push(this.radius * Math.sin(glMatrix.toRadian(i)), this.radius * Math.cos(glMatrix.toRadian(i)),0);
 		}
 		//define rim for top circle
 		for(var i = 0;i<360;i+=360/this.division)
 		{
-			this.vertices.push(this.radius * Math.sin(glMatrix.toRadian(i)), this.radius * Math.cos(glMatrix.toRadian(i)),this.z+this.height);
+			this.vertices.push(this.radius * Math.sin(glMatrix.toRadian(i)), this.radius * Math.cos(glMatrix.toRadian(i)),this.height);
 		}
 		//define base color for Cylinder
-		for(var i =0;i<this.division*2+2;i++)
+		for(var i =0;i<this.division*2+offset;i++)
 		{
 			this.colors.push(0.0, 0.1, 1.0, 1.0);
 		}
