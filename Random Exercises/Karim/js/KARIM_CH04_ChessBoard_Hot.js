@@ -17,7 +17,7 @@ var translation = vec3.create();
 //create squares vector (yes it could be an array, but i did it with a vec2)
 var squares = vec2.create();
 
-window.onload = displayTitle("Ch04_ex6");
+window.onload = displayTitle("Ch04_ex6: Single Quadrilateral Chessboard");
 
 //these two functions are the call destination from the slider's onchange event
 function changeX(amount){
