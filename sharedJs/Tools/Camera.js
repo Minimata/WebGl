@@ -90,6 +90,7 @@ class Camera extends BaseObject {
 
     move() {
         var matrix = rotateModelViewMatrixUsingQuaternion();
+        /*
         this.front = vec3.fromValues(0.0, 0.0, 1.0);
         this.right = vec3.fromValues(-1.0, 0.0, 0.0);
         vec3.transformMat4(this.front, this.front, matrix);
@@ -97,6 +98,7 @@ class Camera extends BaseObject {
         vec3.normalize(this.front, this.front); //just in case
         vec3.normalize(this.right, this.right); //just in case
         vec3.cross(this.up, this.right, this.front);
+        */
 
         mat4.translate(matrix, matrix, this.pos);
         return matrix;

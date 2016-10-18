@@ -5,7 +5,7 @@
 //Creation of 2 global matrix for the location of the scene (mvMatrix) and for the projection (pMatrix)
 var pMatrix = mat4.create();
 var absoluteMatrix = mat4.create();
-var mainCamera = new Camera();
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, -10)});
 
 /**
  * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
