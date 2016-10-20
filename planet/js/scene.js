@@ -5,7 +5,7 @@
 //Creation of 2 global matrix for the location of the scene (mvMatrix) and for the projection (pMatrix)
 var pMatrix = mat4.create();
 var absoluteMatrix = mat4.create();
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, -10)});
+var mainCamera = new Camera();
 
 /**
  * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
@@ -34,7 +34,7 @@ function initScene() {
 
 function drawScene() {
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
-	absoluteMatrix = mainCamera.move();
+	absoluteMatrix = mainCamera.update();
 
 	$.each(getAllDrawables(), function(name, drawable) {
 		drawable.draw($('#' + selectName).val(), mat4.create(), absoluteMatrix);

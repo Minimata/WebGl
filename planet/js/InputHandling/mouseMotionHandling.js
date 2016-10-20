@@ -7,7 +7,9 @@ var rotY = 0; //rotation on the Y-axis (in degrees)
 var rotX = 0; //rotation on the X-axis (in degrees) 
 var dragging = false;
 var oldMousePos = {x: 0, y: 0};
-var rotSpeed = 1.0; //rotation speed
+var rotSpeed = 2.0; //rotation speed
+var rotXQuat = quat.create();
+var rotYQuat = quat.create();
 
 function getMousePos(evt) {
     var rect = myCanvas[0].getBoundingClientRect();
@@ -25,8 +27,8 @@ function handleMouseMove(event) {
         dX = x - oldMousePos.x;
         dY = y - oldMousePos.y;
 
-        rotY += dX > 0 ? rotSpeed : dX < 0 ? -rotSpeed : 0;
-        rotX += dY > 0 ? rotSpeed : dY < 0 ? -rotSpeed : 0;
+        rotY += dX > 0 ? -rotSpeed : dX < 0 ? rotSpeed : 0;
+        rotX += dY > 0 ? -rotSpeed : dY < 0 ? rotSpeed : 0;
 
         oldMousePos = {x, y};
     }
@@ -41,21 +43,17 @@ function handleMouseUp() {
     dragging = false;
 }
 
-function rotateModelViewMatrixUsingQuaternion() {
+function rotateModelViewMatrixUsingQuaternion(cam) {
 
-    var matrix = mat4.create();
     var rx = degToRad(rotX);
     var ry = degToRad(rotY);
 
-    var rotXQuat = quat.create();
-    quat.setAxisAngle(rotXQuat, vec3.fromValues(1, 0, 0), rx);
+    quat.setAxisAngle(rotXQuat, cam.right, rx);
+    quat.setAxisAngle(rotYQuat, cam.up, ry);
 
-    var rotYQuat = quat.create();
-    quat.setAxisAngle(rotYQuat, vec3.fromValues(0, 1, 0), ry);
+    quat.multiply(cam.orientation, rotYQuat, rotXQuat);
 
-    var rotationQuat = quat.create();
-    quat.multiply(rotationQuat, rotYQuat, rotXQuat);
-    mat4.fromQuat(matrix, rotationQuat);
+    rotX = rotY = 0;
 
-    return matrix;
+    return cam.orientation;
 }

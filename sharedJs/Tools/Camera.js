@@ -7,9 +7,9 @@ class Camera extends BaseObject {
         super(args);
 
         this._defaultValues = {
-            pos: vec3.fromValues(0.0, 0.0, -8.0),
+            pos: vec3.fromValues(0.0, -10.0, 0.0),
             speed: 1.0,
-            front: vec3.fromValues(0.0, 0.0, 1.0),
+            front: vec3.fromValues(0.0, 1.0, 0.0),
             right: vec3.fromValues(-1.0, 0.0, 0.0)
         };
 
@@ -21,6 +21,7 @@ class Camera extends BaseObject {
         this.extractObjects(this, args);
 
         this._up = vec3.create();
+        this._orientation = quat.create();
         vec3.cross(this._up, this._right, this._front);
     }
 
@@ -34,6 +35,8 @@ class Camera extends BaseObject {
     set right(o)        {this._right = o}
     get up()            {return this._up}
     set up(o)           {this._up = o}
+    get orientation()   {return this._orientation}
+    set orientation(o)  {this._orientation = o}
 
     setPosFromValues(x, y, z) {this._pos = vec3.fromValues(x, y, z)}
     getX() {return this._pos[0]}
@@ -81,26 +84,40 @@ class Camera extends BaseObject {
         this.setZ(this.getZ() - this.speed*this.up[2]);
     }
 
-    reset() {
-        //default values change the same way as normal values, don't know why the fuck they do but they do
-        //(so reset isn't working)
-        this.pos = this._defaultValues.pos;
-        this.front = this._defaultValues.front;
+    rotateLeft() {
+        var rotQuat = quat.create();
+        quat.setAxisAngle(rotQuat, this.front, degToRad(5));
+        this.updateVectorsFromQuat(rotQuat);
     }
 
-    move() {
-        var matrix = rotateModelViewMatrixUsingQuaternion();
-        /*
-        this.front = vec3.fromValues(0.0, 0.0, 1.0);
-        this.right = vec3.fromValues(-1.0, 0.0, 0.0);
-        vec3.transformMat4(this.front, this.front, matrix);
-        vec3.transformMat4(this.right, this.right, matrix);
+    rotateRight() {
+        var rotQuat = quat.create();
+        quat.setAxisAngle(rotQuat, this.front, degToRad(-5));
+        this.updateVectorsFromQuat(rotQuat);
+    }
+
+    reset() {
+        this.pos = vec3.fromValues(0, 0, 0);
+        //var rotQuat = quat.create();
+        //quat.invert(rotQuat, this.orientation);
+        //this.updateVectorsFromQuat(rotQuat);
+    }
+
+    updateVectorsFromQuat(quat) {
+        vec3.transformQuat(this.front, this.front, quat);
+        vec3.transformQuat(this.right, this.right, quat);
         vec3.normalize(this.front, this.front); //just in case
         vec3.normalize(this.right, this.right); //just in case
         vec3.cross(this.up, this.right, this.front);
-        */
+    }
 
-        mat4.translate(matrix, matrix, this.pos);
-        return matrix;
+    update() {
+        var rotQuat = rotateModelViewMatrixUsingQuaternion(this);
+        this.updateVectorsFromQuat(rotQuat);
+        var finalMatrix = mat4.create();
+        var lookAt = vec3.create();
+        vec3.add(lookAt, this.pos, this.front);
+        mat4.lookAt(finalMatrix, this.pos, lookAt, this.up);
+        return finalMatrix;
     }
 }

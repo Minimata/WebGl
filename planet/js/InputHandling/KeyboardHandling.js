@@ -5,12 +5,14 @@
 
 var m_allShortcutsBehaviours = {
     65: pressedA,
+    67: pressedC,
     68: pressedD,
     69: pressedE,
     81: pressedQ,
     82: pressedR,
     83: pressedS,
-    87: pressedW
+    87: pressedW,
+    89: pressedY
 };
 
 document.onkeydown = function (e) {
@@ -56,6 +58,14 @@ function pressedE(e) {
     if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
     else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.movedown();
+}
+
+function pressedY(e) {
+    mainCamera.rotateLeft();
+}
+
+function pressedC(e) {
+    mainCamera.rotateRight();
 }
 
 function pressedR(e) {
