@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+
+    <script src="Tools/jquery-3.1.0.min.js"></script>
+    <script src="Tools/gl-matrix-min.js"></script>
+    <script src="Tools/debug/webgl-debug.js"></script>
+    <script src="Tools/webglTools.js"></script>
+    <script src="Tools/Camera.js"></script>
+
+    <script src="InputHandling/KeyboardHandling.js"></script>
+    <script src="InputHandling/mouseMotionHandling.js"></script>
+
+    <script src="Views/Scene.js"></script>
+    <script src="Controllers/Controller.js"></script>
+
+    <script src="Objects/Datas/Drawable.js"></script>
+    <script src="Objects/Datas/Quad.js"></script>
+    <script src="Objects/Interfaces/DrawableInterface.js"></script>
+    <script src="Objects/Interfaces/QuadInterface.js"></script>
+
+    <!-- vertex shader -->
+    <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;
+			attribute vec4 aColor;
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+			varying vec4 vColor;
+			void main(void) {
+				vColor = aColor;
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			}
+    </script>
+
+    <!-- fragment shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+			#ifdef GL_ES
+				precision highp float;
+			#endif
+				varying vec4 vColor;
+				void main(void) {
+				  gl_FragColor = vColor;
+				}
+    </script>
+</head>
+<!-- initialize webgl onload -->
+<body>
+
+<!-- webgl canvas -->
+<canvas id="webgl-canvas" width="1280" height="800">
+    HTML5 is not supported
+</canvas>
+</body>
+</html>

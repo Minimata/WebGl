@@ -78,7 +78,7 @@ class Camera extends BaseObject {
         this.setZ(this.getZ() + this.speed*this.up[2]);
     }
 
-    movedown() {
+    moveDown() {
         this.setX(this.getX() - this.speed*this.up[0]);
         this.setY(this.getY() - this.speed*this.up[1]);
         this.setZ(this.getZ() - this.speed*this.up[2]);
@@ -86,13 +86,13 @@ class Camera extends BaseObject {
 
     rotateLeft() {
         var rotQuat = quat.create();
-        quat.setAxisAngle(rotQuat, this.front, degToRad(5));
+        quat.setAxisAngle(rotQuat, this.front, degToRad(-5));
         this.updateVectorsFromQuat(rotQuat);
     }
 
     rotateRight() {
         var rotQuat = quat.create();
-        quat.setAxisAngle(rotQuat, this.front, degToRad(-5));
+        quat.setAxisAngle(rotQuat, this.front, degToRad(5));
         this.updateVectorsFromQuat(rotQuat);
     }
 

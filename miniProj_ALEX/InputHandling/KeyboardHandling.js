@@ -2,7 +2,6 @@
  * Created by alexandre on 03.10.2016.
  */
 
-
 var m_allShortcutsBehaviours = {
     65: pressedA,
     67: pressedC,
@@ -25,38 +24,26 @@ document.onkeydown = function (e) {
 };
 
 function pressedA(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveLeft();
 }
 
 function pressedW(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveFront();
 }
 
 function pressedS(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveBack();
 }
 
 function pressedD(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveRight();
 }
 
 function pressedQ(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveDown();
 }
 
 function pressedE(e) {
-    if(e.shiftKey) mainCamera.speed = mainCamera.getFastSpeed();
-    else mainCamera.speed = mainCamera.getDefaultSpeed();
     mainCamera.moveUp();
 }
 

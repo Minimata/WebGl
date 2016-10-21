@@ -2,38 +2,27 @@
  * Created by alexandre on 28.09.2016.
  */
 
-class Drawable extends BaseObject{
+class Drawable {
     constructor(...args) {
-        super(args);
+        var {
+            id = "Minimata",
+            x = 0,
+            y = 0,
+            z = 0,
+            r = 1,
+            g = 1,
+            b = 1,
+            a = 1,
+            } = GLTools_extractObjects(args);
 
-        this._defaultValues = {
-            id: "Minimata",
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-            r: 1.0,
-            g: 1.0,
-            b: 1.0,
-            a: 1.0,
-
-            children: null
-        };
-
-        this._id = this._defaultValues.id;
-        this._x = this._defaultValues.x;
-        this._y = this._defaultValues.y;
-        this._z = this._defaultValues.z;
-        this._r = this._defaultValues.r;
-        this._g = this._defaultValues.g;
-        this._b = this._defaultValues.b;
-        this._a = this._defaultValues.a;
-        this._children = this._defaultValues.children;
-
-        this.extractObjects(this, args);
-
-        this._renderingMethods = {
-            _obj: this
-        };
+        this._id = id;
+        this._x = x;
+        this._y = y;
+        this._z = z;
+        this._r = r;
+        this._g = g;
+        this._b = b;
+        this._a = a;
 
         //Initialisation of the buffers within the object
         this._vertexBuffer = null;
@@ -57,17 +46,14 @@ class Drawable extends BaseObject{
     get x   ()      {return this._x}
     set x   (x)     {
         this._x = x;
-        this.propagateToChildren("x", x);
     }
     get y   ()      {return this._y}
     set y   (y)     {
         this._y = y;
-        this.propagateToChildren("y", y);
     }
     get z   ()      {return this._z}
     set z   (z)     {
         this._z = z;
-        this.propagateToChildren("z", z);
     }
     get r   ()      {return this._r}
     set r   (r)     {this._r = r}
@@ -77,9 +63,6 @@ class Drawable extends BaseObject{
     set b   (b)     {this._b = b}
     get a   ()      {return this._a}
     set a   (a)     {this._a = a}
-    get defaultValues   ()      {return this._defaultValues}
-    get renderingMethods    ()  {return this._renderingMethods}
-    set renderingMethods    (r) {this._renderingMethods = r}
     get vertexBuffer    ()      {return this._vertexBuffer}
     set vertexBuffer    (v)     {this._vertexBuffer = v}
     get indexBuffer     ()      {return this._indexBuffer}
@@ -94,8 +77,6 @@ class Drawable extends BaseObject{
     set colors          (c)     {this._colors = c}
     get mvMatrix        ()      {return this._mvMatrix}
     set mvMatrix        (m)     {this._mvMatrix = m}
-    get children        ()      {return this._children}
-    set children        (c)     {this._children = c}
 
     getColors   ()  {return {r: this._r, g: this._g, b: this.b, a: this._a}}
     setColors   (...args)  {
@@ -120,10 +101,8 @@ class Drawable extends BaseObject{
         return vec3.fromValues(this._x, this._y, this._z);
     }
 
-    draw(render, mvMatrix, parent) {
-        if(!render) throw ReferenceError("No rendering method defined");
-        if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
-
+    draw(parent) {
+        var mvMatrix = mat4.create();
         mat4.multiply(mvMatrix, parent, this._mvMatrix);
         glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
 
@@ -133,20 +112,6 @@ class Drawable extends BaseObject{
         glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
         glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 
-        this.renderingMethods[render]();
-
-        if(this._children) {
-            $.each(this._children, function(name, value) {
-                value.draw(render, mvMatrix, mvMatrix);
-            });
-        }
-    }
-
-    propagateToChildren(attr, val) {
-        if(this._children) {
-            $.each(this._children, function(name, value) {
-                value[attr] = val;
-            });
-        }
+        glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
     }
 }
