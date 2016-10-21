@@ -7,7 +7,7 @@ function GLTools_degToRad(degrees) {
     return (degrees * Math.PI / 180.0);
 }
 
-function rnd(range) {
+function GLTools_rnd(range) {
     return Math.floor(Math.random() * range);
 }
 
@@ -167,9 +167,9 @@ function initTextureWithImage(sFilename, texture) {
     c.width = 64;
     c.height = 64;
     var ctx = c.getContext("2d");
-    var red = rnd(256);
-    var green = rnd(256);
-    var blue = rnd(256);
+    var red = GLTools_rnd(256);
+    var green = GLTools_rnd(256);
+    var blue = GLTools_rnd(256);
     ctx.fillStyle = "rgb(" + red + "," + green + "," + blue + ")";
 
     ctx.fillRect(0, 0, 64, 64);

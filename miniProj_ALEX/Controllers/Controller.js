@@ -23,7 +23,7 @@ $(function () {
 
         m_initDrawables();
 
-        GLTools_logicLoop();
+        //GLTools_logicLoop();
         GLTools_renderLoop();
     }
     catch (e) {
@@ -32,7 +32,7 @@ $(function () {
 });
 
 function m_initDrawables() {
-    allDrawables.push(new Quad(), new Quad({x: 3}));
+    allDrawables.push(new Quad({width: 100, height: 100, divisions: 100}));
 }
 
 function m_initEventHandling() {

@@ -20,9 +20,12 @@ function Scene_drawScene() {
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 	absoluteMatrix = mainCamera.update();
 
+	var updater = new QuadInterface();
+
 	var toDraw = Controller_getDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
-		toDraw[i].draw(absoluteMatrix)
+		updater.update(toDraw[i]);
+		toDraw[i].draw(absoluteMatrix);
 	}
 }
 
