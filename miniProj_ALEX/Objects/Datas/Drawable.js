@@ -3,9 +3,8 @@
  */
 
 class Drawable {
-    constructor(...args) {
+    constructor(args = {}) {
         var {
-            id = "Minimata",
             x = 0,
             y = 0,
             z = 0,
@@ -13,9 +12,8 @@ class Drawable {
             g = 1,
             b = 1,
             a = 1,
-            } = GLTools_extractObjects(args);
+            } = args;
 
-        this._id = id;
         this._x = x;
         this._y = y;
         this._z = z;
@@ -41,8 +39,6 @@ class Drawable {
         }
     }
 
-    get id  ()      {return this._id;}
-    set id  (id)    {this._id = id;}
     get x   ()      {return this._x}
     set x   (x)     {
         this._x = x;

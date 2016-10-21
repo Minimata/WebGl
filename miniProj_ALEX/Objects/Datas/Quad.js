@@ -3,14 +3,19 @@
  */
 
 class Quad extends Drawable {
-    constructor(...args) {
+    constructor(args = {}) {
         super(args);
         var {
             width = 1,
             height = 1
-            } = GLTools_extractObjects(args);
+            } = args;
 
         this._width = width;
         this._height = height;
     }
+
+    get width() {return this._width}
+    set width(w){this._width = w}
+    get height() {return this._height}
+    set height(h){this._height = h}
 }

@@ -7,7 +7,7 @@ class Camera {
         var {
             pos = vec3.fromValues(0, 0, 0),
             front = vec3.fromValues(0.0, 1.0, 0.0),
-            right = vec3.fromValues(-1.0, 0.0, 0.0),
+            right = vec3.fromValues(1.0, 0.0, 0.0),
             speed = 1.0
             } = GLTools_extractObjects(args);
 

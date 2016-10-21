@@ -24,42 +24,6 @@ function Scene_drawScene() {
 	for(var i = 0; i < toDraw.length; i++) {
 		toDraw[i].draw(absoluteMatrix)
 	}
-
-	var vertices = [];
-	var colors = [];
-	var indices = [];
-	var vertexBuffer = null;
-	var indexBuffer = null;
-	var colorBuffer = null;
-
-	vertices.push(
-		0, 0, 0,
-		1, 0, 0,
-		0, 1, 0,
-		1, 1, 0
-	);
-	colors.push(
-		1, 1, 1, 1,
-		1, 1, 1, 1,
-		1, 1, 1, 1,
-		1, 1, 1, 1
-	);
-	indices.push(0, 1, 2);
-	indices.push(3, 2, 1);
-
-	vertexBuffer = getVertexBufferWithVertices(vertices);
-	colorBuffer = getVertexBufferWithVertices(colors);
-	indexBuffer = getIndexBufferWithIndices(indices);
-
-	glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, absoluteMatrix);
-
-	glContext.bindBuffer(glContext.ARRAY_BUFFER, vertexBuffer);
-	glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0);
-	glContext.bindBuffer(glContext.ARRAY_BUFFER, colorBuffer);
-	glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
-	glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-	glContext.drawElements(glContext.TRIANGLES, indices.length, glContext.UNSIGNED_SHORT, 0);
 }
 
 function Scene_updateScene() {

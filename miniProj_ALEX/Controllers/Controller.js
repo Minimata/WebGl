@@ -32,7 +32,7 @@ $(function () {
 });
 
 function m_initDrawables() {
-    allDrawables.push(new Quad(), new Quad({x: 2}));
+    allDrawables.push(new Quad(), new Quad({x: 3}));
 }
 
 function m_initEventHandling() {

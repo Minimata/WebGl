@@ -3,8 +3,8 @@
  */
 
 class QuadInterface extends DrawableInterface {
-    constructor(...args) {
-        super(args);
+    constructor() {
+        super();
     }
 
     fillArrays(quad) {
