@@ -72,10 +72,10 @@ function initBuffers() {
 function createSquare() {
     var transparency = 1.0;
 	//create 4 vertices for Chessboard corners
-	vertices.push(1.0,1.0,0.0);
+	vertices.push(1.0,1.0,1.0);
 	vertices.push(-1.0,1.0,0.0);
 	vertices.push(-1.0,-1.0,0.0);
-	vertices.push(1.0,-1.0,0.0);
+	vertices.push(1.0,-1.0,1.0);
 	
 	//preset chessboard to default 8x8 matrix (look at fragment shader for why it's 4 and not 8)
 	vec2.set(squares, 4,4);

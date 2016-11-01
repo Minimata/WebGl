@@ -4,7 +4,7 @@
 
 var canvasName = 'webgl-canvas';
 var myCanvas;
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 5), front: vec3.fromValues(0, 0, -1)});
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 10), front: vec3.fromValues(0, 0, -1)});
 var glContext = null;
 var prg = null;
 var allShaderNames = [
@@ -23,7 +23,7 @@ $(function () {
 
         m_initDrawables();
 
-        //GLTools_logicLoop();
+        GLTools_logicLoop();
         GLTools_renderLoop();
     }
     catch (e) {
@@ -32,7 +32,7 @@ $(function () {
 });
 
 function m_initDrawables() {
-    allDrawables.push(new Quad({width: 100, height: 100, divisions: 100}));
+    allDrawables.push(new Quad({width: 100, height: 100, divisions: 100, r: 0, g: 0.6, b: 1.0}));
 }
 
 function m_initEventHandling() {
@@ -75,4 +75,7 @@ function m_initShaderParameters(prg) {
 
     prg.pMatrixUniform          = glContext.getUniformLocation(prg, 'uPMatrix');
     prg.mvMatrixUniform         = glContext.getUniformLocation(prg, 'uMVMatrix');
+
+    prg.uDeltaTime              = glContext.getUniformLocation(prg, 'uDeltaTime');
+    prg.uFullTime              = glContext.getUniformLocation(prg, 'uFullTime');
 }

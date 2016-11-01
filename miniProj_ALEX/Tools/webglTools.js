@@ -2,6 +2,7 @@ var c_width = 0;
 var c_height = 0;
 var renderTimer;
 var logicTimer;
+var time;
 
 function GLTools_degToRad(degrees) {
     return (degrees * Math.PI / 180.0);
@@ -31,7 +32,12 @@ function GLTools_stopRenderLoop() {
 }
 
 function GLTools_logicLoop() {
-    Scene_updateScene();
+    var now = new Date().getTime(),
+        dt = now - (time || now);
+    time = now;
+
+    // this.x += 10 * dt; // Increase 'x' by 10 units per millisecond
+    Scene_updateScene(dt);
     logicTimer = requestAnimationFrame(GLTools_logicLoop);
 }
 function GLTools_stopLogicLoop() {

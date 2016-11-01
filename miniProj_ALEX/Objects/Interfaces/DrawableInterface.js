@@ -9,13 +9,13 @@ class DrawableInterface {
         }
     }
 
-    update(drawable) {
+    update(drawable, fullTime, deltaTime) {
         if(!drawable) throw ReferenceError("Null Drawable cannot be updated");
         drawable.vertices = [];
         drawable.colors = [];
         drawable.indices = [];
 
-        this.fillArrays(drawable);
+        this.fillArrays(drawable, fullTime, deltaTime);
 
         //Converts the values to buffers
         drawable.vertexBuffer = getVertexBufferWithVertices(drawable.vertices);
@@ -30,7 +30,7 @@ class DrawableInterface {
     /**
      * This is where the drawing logic of the children will be
      */
-    fillArrays(drawable) {
+    fillArrays() {
         throw TypeError("function fillArrays shouldn't be executed from abstract class DrawableInterface.");
     }
 }

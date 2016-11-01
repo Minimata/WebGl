@@ -22,13 +22,24 @@
 
     <!-- vertex shader -->
     <script id="shader-vs" type="x-shader/x-vertex">
+            //Quad attributes
             attribute vec3 aVertexPosition;
 			attribute vec4 aColor;
+
+			//Projection and world rendering
 			uniform mat4 uMVMatrix;
 			uniform mat4 uPMatrix;
+
+			//Values sent to frag
+			varying vec3 vVertexPos;
 			varying vec4 vColor;
+
 			void main(void) {
+			    //Setting the values sent to frag
 				vColor = aColor;
+				vVertexPos = aVertexPosition;
+
+				//Rendering final positions of vertices in world
 				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 			}
     </script>
@@ -38,13 +49,82 @@
 			#ifdef GL_ES
 				precision highp float;
 			#endif
-				varying vec4 vColor;
-				void main(void) {
-				  gl_FragColor = vColor;
-				}
+
+			#define PI 3.1415926535897932384626433832795
+
+			//Getting variables from vertex shader
+            varying vec4 vColor;
+			varying vec3 vVertexPos;
+
+			//Getting timestamps
+			uniform float uDeltaTime;
+			uniform float uFullTime;
+
+			float addValueWithLimit(float inputValue, float offset, float min, float max) {
+			    float newVal = inputValue + offset;
+			    if(newVal > max) {
+			        newVal = max;
+			    }
+			    else if(newVal < min) {
+			        newVal = min;
+			    }
+			    return newVal;
+			}
+
+			float f_vertical(vec2 val) {
+			    return val.x;
+			}
+
+			float f_horizontal(vec2 val) {
+			    return val.y;
+			}
+
+			float f_linear(vec2 val, float derivative) {
+			    return -derivative*val.x + val.y;
+			}
+
+			float f_quadraticX(vec2 val, float strength) {
+			    return pow(val.x, 2.0) / -strength + val.y;
+			}
+
+			float f_quadraticY(vec2 val, float strength) {
+			    return pow(val.y, 2.0) / -strength + val.x;
+			}
+
+			float f_circular(vec2 val, vec2 center, vec2 stretch) {
+			    return stretch.x*pow((val.x - center.x), 2.0) + stretch.y*pow((val.y - center.y), 2.0);
+			}
+
+			float wave(float initValue, float pos, float frequency, float amplitude, float offset, float speed) {
+			    float pulsation = 2.0*PI*frequency;
+			    float valueToAdd = amplitude*sin(radians(pulsation*pos + speed*uFullTime) + offset);
+
+			    return addValueWithLimit(initValue, valueToAdd, 0.0, 1.0);
+			}
+
+            void main(void) {
+                vec4 color = vColor;
+                float pos;
+                float valueAtI;
+                for(int i = 0; i < 3; i++) {
+                    valueAtI = 0.0;
+                    pos = f_circular(vVertexPos.xy, vec2(0.0, 0.0), vec2(0.01, 0.01));
+                    valueAtI += wave(vColor[i], pos, 20.0, 0.2, 0.0, 100.0);
+                    pos = f_quadraticX(vVertexPos.xy, 100.0);
+                    valueAtI += wave(vColor[i], pos, 10.0, 0.1, 0.0, 200.0);
+                    pos = f_quadraticY(vVertexPos.xy, 70.0);
+                    valueAtI += wave(vColor[i], pos, 30.0, 0.05, 0.0, 80.0);
+                    pos = f_linear(vVertexPos.xy, 2.0);
+                    valueAtI += wave(vColor[i], pos, 7.0, 0.1, 0.0, 300.0);
+
+                    color[i] = valueAtI / 4.0;
+                }
+
+                //Set the color of actual pixel at the color
+                gl_FragColor = color;
+            }
     </script>
 </head>
-<!-- initialize webgl onload -->
 <body>
 
 <!-- webgl canvas -->
