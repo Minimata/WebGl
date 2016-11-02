@@ -106,18 +106,29 @@
                 vec4 color = vColor;
                 float pos;
                 float valueAtI;
+                float commonFrequencyFactor = 2.0;
                 for(int i = 0; i < 3; i++) {
                     valueAtI = 0.0;
-                    pos = f_circular(vVertexPos.xy, vec2(0.0, 0.0), vec2(0.01, 0.01));
-                    valueAtI += wave(vColor[i], pos, 20.0, 0.2, 0.0, 100.0);
-                    pos = f_quadraticX(vVertexPos.xy, 100.0);
-                    valueAtI += wave(vColor[i], pos, 10.0, 0.1, 0.0, 200.0);
-                    pos = f_quadraticY(vVertexPos.xy, 70.0);
-                    valueAtI += wave(vColor[i], pos, 30.0, 0.05, 0.0, 80.0);
-                    pos = f_linear(vVertexPos.xy, 2.0);
-                    valueAtI += wave(vColor[i], pos, 7.0, 0.1, 0.0, 300.0);
 
-                    color[i] = valueAtI / 4.0;
+                    //Circular waves
+                    pos = f_circular(vVertexPos.xy, vec2(0.0, 0.0), vec2(0.01, 0.01));
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*10.0, 0.2, 0.0, 100.0);
+                    pos = f_circular(vVertexPos.xy, vec2(70, 50), vec2(0.005, 0.01));
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*5.0, 0.2, 0.0, 150.0);
+                    pos = f_circular(vVertexPos.xy, vec2(-50, 0), vec2(0.005, 0.05));
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*3.0, 0.3, 0.0, 70.0);
+
+                    //Quadratic waves
+                    pos = f_quadraticX(vVertexPos.xy, 100.0);
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*10.0, 0.1, 0.0, 200.0);
+                    pos = f_quadraticY(vVertexPos.xy, 50.0);
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*3.0, 0.05, 0.0, 80.0);
+
+                    //Linear waves
+                    pos = f_linear(vVertexPos.xy, 2.0);
+                    valueAtI += wave(vColor[i], pos, commonFrequencyFactor*3.0, 0.1, 0.0, 300.0);
+
+                    color[i] = valueAtI / 6.0;
                 }
 
                 //Set the color of actual pixel at the color
