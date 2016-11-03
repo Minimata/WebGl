@@ -32,7 +32,7 @@ $(function () {
 });
 
 function m_initDrawables() {
-    allDrawables.push(new Quad({width: 100, height: 100, divisions: 100, r: 0, g: 0.6, b: 1.0}));
+    allDrawables.push(new Quad({width: 10000, height: 10000, r: 0.0, g: 0.6, b: 1.0}));
 }
 
 function m_initEventHandling() {
