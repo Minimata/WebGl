@@ -51,11 +51,6 @@ function initBuffers() {
     indices = [];
     triangleCeption(10, displacement);
 
-    //DEBUG HELP
-    if (vertices.length != (colors.length - (vertices.length / 3))) {
-        throw new BadInitBufferException("Vertices and colors need to be the same length");
-    }
-
     vertexBuffer = getVertexBufferWithVertices(vertices);
     colorBuffer = getVertexBufferWithVertices(colors);
     indexBuffer = getIndexBufferWithIndices(indices);

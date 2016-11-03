@@ -10,12 +10,14 @@
     <script src="../sharedJs/debug/webgl-debug.js"></script>
     <script src="../sharedJs/webglTools.js"></script>
     <!-- import application scripts -->
+    <script src="../sharedJs/Tools/BaseObject.js"></script>
     <script src="js/SceneObjectInterfaces/DrawableInterface.js"></script>
     <script src="js/SceneObjectInterfaces/PlanetInterface.js"></script>
     <script src="js/SceneObjects/Drawable.js"></script>
     <script src="js/SceneObjects/Planet.js"></script>
     <script src="js/InputHandling/KeyboardHandling.js"></script>
     <script src="js/InputHandling/mouseMotionHandling.js"></script>
+    <script src="../sharedJs/Tools/Camera.js"></script>
     <script src="js/Scene.js"></script>
     <script src="js/Controller.js"></script>
 
@@ -45,8 +47,9 @@
 </head>
 <!-- initialize webgl onload -->
 <body>
+
 <!-- webgl canvas -->
-<canvas id="webgl-canvas" width="500" height="500">
+<canvas id="webgl-canvas" width="1280" height="800">
     HTML5 is not supported
 </canvas>
 <input id="slider-divisions" type="range" value="8" max="100" min="3" step="1">

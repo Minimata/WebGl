@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+
+    <script src="Tools/jquery-3.1.0.min.js"></script>
+    <script src="Tools/gl-matrix-min.js"></script>
+    <script src="Tools/debug/webgl-debug.js"></script>
+    <script src="Tools/webglTools.js"></script>
+    <script src="Tools/Camera.js"></script>
+
+    <script src="InputHandling/KeyboardHandling.js"></script>
+    <script src="InputHandling/mouseMotionHandling.js"></script>
+
+    <script src="Views/Scene.js"></script>
+    <script src="Controllers/Controller.js"></script>
+
+    <script src="Objects/Datas/Drawable.js"></script>
+    <script src="Objects/Datas/Quad.js"></script>
+    <script src="Objects/Interfaces/DrawableInterface.js"></script>
+    <script src="Objects/Interfaces/QuadInterface.js"></script>
+
+    <!-- vertex shader -->
+    <script id="shader-vs" type="x-shader/x-vertex">
+//Quad attributes
+attribute vec3 aVertexPosition;
+attribute vec4 aColor;
+//Projection and world rendering
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
+//Values sent to frag
+varying vec3 vVertexPos;
+varying vec4 vColor;
+void main(void) {
+    //Setting the values sent to frag
+    vColor = aColor;
+    vVertexPos = aVertexPosition;
+    //Rendering final positions of vertices in world
+    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+}
+    </script>
+
+    <!-- fragment shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+#ifdef GL_ES
+    precision highp float;
+#endif
+
+#define PI 3.1415926535897932384626433832795
+#define MAX_ITER 8
+#define NUM_WAVES 7
+
+//Getting variables from vertex shader
+varying vec4 vColor;
+varying vec3 vVertexPos;
+
+//Getting timestamps
+uniform float uDeltaTime;
+uniform float uFullTime;
+
+//Defining a wave
+//sadly inheritence is not allowed in GLSL
+//therefore a wave is defined by arguments needed to define ANY wave
+//so most of its fields won't be needed for using its methods.
+struct Wave {
+    //functions
+    int typeOfMethod;
+
+    //arguments for position function
+    vec2 position;
+    float derivative;
+    float strength;
+    vec2 center;
+    vec2 stretch;
+
+    //arguments for wave function
+    float revolvingColor;
+    float frequency;
+    float amplitude;
+    float offset;
+    float speed;
+};
+
+float addValueWithLimit(float inputValue, float offset, float min, float max) {
+    float newVal = inputValue + offset;
+    if(newVal > max) {
+        newVal = max;
+    }
+    else if(newVal < min) {
+        newVal = min;
+    }
+    return newVal;
+}
+
+float f_linear(vec2 val, float derivative) {
+    return -derivative*val.x + val.y;
+}
+
+float f_quadraticX(vec2 val, float strength) {
+    return pow(val.x, 2.0) / -strength + val.y;
+}
+
+float f_quadraticY(vec2 val, float strength) {
+    return pow(val.y, 2.0) / -strength + val.x;
+}
+
+float f_circular(vec2 val, vec2 center, vec2 stretch) {
+    float xValue = (val.x - center.x);
+    float yValue = (val.y - center.y);
+
+    return sqrt(stretch.x*pow(xValue, 2.0) + stretch.y*pow(yValue, 2.0));
+}
+
+float wave(float initValue, float pos, float frequency, float amplitude, float offset, float speed) {
+    float pulsation = 2.0*PI*frequency;
+    float valueToAdd = amplitude*sin(radians(pulsation*pos + speed*uFullTime) + offset);
+
+    return addValueWithLimit(initValue, valueToAdd, 0.0, 1.0);
+}
+
+float getValueFromWave(Wave w, float aFactor, float fFactor, float oFactor, float sFactor) {
+    float tmpPos = 0.0;
+
+    if(w.typeOfMethod == 0) {
+        tmpPos = f_linear(w.position, w.derivative);
+    }
+    else if(w.typeOfMethod == 1) {
+        tmpPos = f_quadraticX(w.position, w.strength);
+    }
+    else if(w.typeOfMethod == 2) {
+        tmpPos = f_quadraticY(w.position, w.strength);
+    }
+    else if(w.typeOfMethod == 3) {
+        tmpPos = f_circular(w.position, w.center, w.stretch);
+    }
+    else {
+        tmpPos = f_linear(w.position, w.derivative);
+    }
+
+    return wave(w.revolvingColor, tmpPos, fFactor*w.frequency, aFactor*w.amplitude, oFactor*w.offset, sFactor*w.speed);
+}
+
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{
+    float time = uFullTime * .5+23.0;
+    // uv should be the 0-1 uv of texture...
+	vec2 uv = fragCoord.xy / vec2(30.0, 30.0); //<-- resolution, supposed...
+    vec2 p = mod(uv*2.0*PI, 2.0*PI)-250.0;
+
+	vec2 i = vec2(p);
+	float c = 1.0;
+	float inten = .005;
+
+	for (int n = 0; n < MAX_ITER; n++)
+	{
+		float t = time * (1.0 - (3.5 / float(n+1)));
+		i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+		c += 1.0/length(vec2(p.x / (sin(i.x+t)/inten),p.y / (cos(i.y+t)/inten)));
+	}
+	c /= float(MAX_ITER);
+	c = 1.17-pow(c, 1.4);
+	vec3 colour = vec3(pow(abs(c), float(MAX_ITER)));
+    colour = clamp(colour + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
+
+    fragColor = vec4(colour, 1.0);
+}
+
+void main(void) {
+    vec4 color = vColor;
+    float pos;
+    float valueAtI;
+    float commonFrequencyFactor = 1.0;
+    float commonAmplitudeFactor = 1.0;
+    float commonOffsetFactor = 1.0;
+    float commonSpeedFactor = 0.5;
+
+    Wave allWaves[NUM_WAVES];
+    allWaves[0] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(400.0, 700.0), vec2(0.01, 0.01), vColor[0], 5.0, 0.2, 0.0, 100.0);
+    allWaves[1] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(40.0, 30.0), vec2(0.005, 0.01), vColor[0], 7.0, 0.2, 0.0, 150.0);
+    allWaves[2] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(-50.0, 0.0), vec2(0.005, 0.05), vColor[0], 6.0, 0.3, 0.0, 70.0);
+    allWaves[3] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(-50.0, -50.0), vec2(0.001, 0.001), vColor[0], 10.0, 0.8, 0.0, 50.0);
+    allWaves[4] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(-200.0, 700.0), vec2(0.02, 0.02), vColor[0], 8.0, 0.7, 0.0, 70.0);
+    allWaves[5] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(-50.0, 40.0), vec2(0.01, 0.01), vColor[0], 10.0, 0.8, 0.0, 50.0);
+    allWaves[6] = Wave(3, vVertexPos.xy, 0.0, 0.0, vec2(0.0, 0.0), vec2(0.001, 0.001), vColor[0], 1.0, 0.1, 0.0, 30.0);
+
+    for(int i = 0; i < 3; i++) {
+        valueAtI = 0.0;
+
+        for(int j = 0; j < NUM_WAVES; j++){
+            allWaves[j].revolvingColor = vColor[i];
+            valueAtI += getValueFromWave(allWaves[j], commonAmplitudeFactor, commonFrequencyFactor, commonOffsetFactor, commonSpeedFactor);
+        }
+        color[i] = valueAtI / float(NUM_WAVES);
+    }
+
+    vec4 tmp = vec4(0.0, 0.0, 0.0, 0.0);
+    mainImage(tmp, vVertexPos.xy);
+
+    //Set the color of actual pixel at the color
+    gl_FragColor = (9.0*color + 2.0*tmp) / 11.0;
+}
+    </script>
+</head>
+<body>
+
+<!-- webgl canvas -->
+<canvas id="webgl-canvas" width="1280" height="800">
+    HTML5 is not supported
+</canvas>
+</body>
+</html>

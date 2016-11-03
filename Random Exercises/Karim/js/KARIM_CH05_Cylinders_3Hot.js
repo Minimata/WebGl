@@ -2,9 +2,10 @@
  * Created by karim on 17.10.2016.
  */
 
-var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
+var mvMatrix = mat4.create();
 var sceneObjects = [];
+var camera;
 
 window.onload = displayTitle("Cylinder Selector");
 
@@ -18,9 +19,10 @@ function initScene(){
 	mat4.perspective (pMatrix, degToRad(45.0), c_width / c_height, 0.1, 1000.0);
 
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
-  glContext.enable(glContext.DEPTH_TEST);
-  glContext.viewport(0, 0, c_width, c_height);
-	renderLoop();
+  	glContext.enable(glContext.DEPTH_TEST);
+  	glContext.viewport(0, 0, c_width, c_height);
+
+	camera = new Camera();
 }
 
 function initShaderParameters(prg) {
@@ -42,27 +44,24 @@ function drawScene() {
 	{
 		//Reseting the mvMatrix
 		mat4.identity(mvMatrix);
-		//Handling the mouse rotation on the scene
-		rotateModelViewMatrixUsingQuaternion();
+		mvMatrix = camera.move();
 		//Multiplying the mvMatrix handling the camera with the object position
-		mat4.multiply(mvMatrix, sceneObjects[i].mvMatrix, mvMatrix );
+		mat4.multiply(mvMatrix, sceneObjects[i].mvMatrix, mvMatrix);
 		//Sending the current mvMatrix to the shader
 		glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
 		//Calling draw on the object
 		sceneObjects[i].draw();
 	}
-
-
 }
 
-function initWebGL() {
+$(function() {
     try {
         glContext = getGLContext('webgl-canvas');
         initProgram();
-				initScene();
+		initScene();
+		renderLoop();
     }
     catch (e) {
         console.error(e)
     }
-
-}
+});

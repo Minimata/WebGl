@@ -39,18 +39,22 @@
 		varying vec2 vSquares;
 		varying vec3 vVertexPosition;
         void main(void) {
+
 			//create the two possible color outputs
 			vec4 black = vec4(0.0,0.0,0.0,1.0);
 			vec4 white = vec4(1.0,1.0,1.0,1.0);
+
 			//this total represents the x coordinate + the y coordinate amplified by
 			//this trick essentially virtually increases the size of the board by 
 			//a multiplier sent from the sliders in html
 			//vSquares[0] + vSquares[1] which are the subdivision factor
 			float total = floor(vVertexPosition[0]*vSquares[0]) + floor(vVertexPosition[1]*vSquares[1]);
+
 			//We then look at the total, which is an Integer (due to "floor"), value between 
 			//min*vSquares and max*vSquares, where min and max are the limits of the chessboard
 			//we then do a modulo on that value
 			bool isEven = mod(total,2.0)==0.0;
+
 			//if the modulo is even, paint pixel black, else white
 			gl_FragColor = (isEven)? black:white;
 		}
