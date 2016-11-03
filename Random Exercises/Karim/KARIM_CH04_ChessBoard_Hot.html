@@ -43,8 +43,8 @@
 			vec4 black = vec4(0.0,0.0,0.0,1.0);
 			vec4 white = vec4(1.0,1.0,1.0,1.0);
 			//this total represents the x coordinate + the y coordinate amplified by
-			//a multiplier sent from the sliders in html
 			//this trick essentially virtually increases the size of the board by 
+			//a multiplier sent from the sliders in html
 			//vSquares[0] + vSquares[1] which are the subdivision factor
 			float total = floor(vVertexPosition[0]*vSquares[0]) + floor(vVertexPosition[1]*vSquares[1]);
 			//We then look at the total, which is an Integer (due to "floor"), value between 
