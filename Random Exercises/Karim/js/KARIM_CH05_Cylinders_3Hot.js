@@ -11,8 +11,8 @@ window.onload = displayTitle("Cylinder Selector");
 
 function initScene(){
 	//creation of cylinders
-	var cylinder1 = new Cylinder(2,1,1,1,0);
-	var cylinder2 = new Cylinder(2,1,-1,-1,0);
+	var cylinder1 = new Cylinder(2,1,1,1,-3);
+	var cylinder2 = new Cylinder(2,1,-1,-1,-3);
 	sceneObjects.push(cylinder1,cylinder2);
 
 	mat4.identity(pMatrix);

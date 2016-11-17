@@ -78,8 +78,6 @@ class Cylinder{
 	}
 
 	draw() {
-		mat4.identity(this.mvMatrix);
-		mat4.translate(this.mvMatrix, this.mvMatrix, vec3.fromValues(this.x, this.y, this.z));
 
     glContext.bindBuffer(glContext.ARRAY_BUFFER, this.vertexBuffer);
     glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0);
