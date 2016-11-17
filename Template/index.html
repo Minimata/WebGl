@@ -47,8 +47,8 @@ void main(void) {
     //Rendering final positions of vertices in world
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 }
-    </script>
 
+    </script>
 
 
     <!-- fragment shader -->
@@ -70,13 +70,27 @@ uniform vec3 uCameraPosition;
 void main(void) {
     gl_FragColor = vColor;
 }
+
     </script>
 </head>
 <body>
 
 <!-- webgl canvas -->
-<canvas id="webgl-canvas" width="1280" height="800">
+<canvas id="webgl-canvas" width="1000" height="800" style="float: left">
     HTML5 is not supported
 </canvas>
+
+<div style="float: left">
+    <h1>
+        Camera controls :
+    </h1>
+    <p>
+        WASD : move around <br/>
+        QE : move up and down <br/>
+        YC : rotate camera (you might throw up) <br/>
+        shift : toggle super speed <br/>
+        R : resets camera position to (0, 0, 0) <br/>
+        Use your mouse to look around.
+    </p></div>
 </body>
 </html>
