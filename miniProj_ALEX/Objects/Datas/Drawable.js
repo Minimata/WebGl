@@ -97,7 +97,7 @@ class Drawable {
         return vec3.fromValues(this._x, this._y, this._z);
     }
 
-    draw(parent) {
+    draw(parent, prg) {
         var mvMatrix = mat4.create();
         mat4.multiply(mvMatrix, parent, this._mvMatrix);
         glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
@@ -107,6 +107,12 @@ class Drawable {
         glContext.bindBuffer(glContext.ARRAY_BUFFER, this._colorBuffer);
         glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
         glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
+
+        //if(prg.samplerUniform != undefined){
+        //    glContext.activeTexture(glContext.TEXTURE0);
+        //    glContext.bindTexture(glContext.TEXTURE_2D, rttTexture);
+        //    glContext.uniform1i(prg.samplerUniform, 0);
+        //}
 
         glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
     }

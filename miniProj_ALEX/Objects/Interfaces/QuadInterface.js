@@ -7,7 +7,7 @@ class QuadInterface extends DrawableInterface {
         super();
     }
 
-    fillArrays(quad, fullTime, deltaTime) {
+    fillArrays(quad) {
         quad.vertices.push(-quad.width / 2, -quad.height / 2, 0);
         quad.vertices.push(-quad.width / 2, quad.height / 2, 0);
         quad.vertices.push(quad.width / 2, -quad.height / 2, 0);
@@ -19,8 +19,5 @@ class QuadInterface extends DrawableInterface {
 
         quad.indices.push(0, 1, 2);
         quad.indices.push(3, 2, 1);
-
-        glContext.uniform1f(prg.uDeltaTime, deltaTime);
-        glContext.uniform1f(prg.uFullTime, fullTime);
     }
 }
