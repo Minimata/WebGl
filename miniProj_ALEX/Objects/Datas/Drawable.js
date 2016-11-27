@@ -108,12 +108,6 @@ class Drawable {
         glContext.vertexAttribPointer(prg.colorAttribute, 4, glContext.FLOAT, false, 0, 0);
         glContext.bindBuffer(glContext.ELEMENT_ARRAY_BUFFER, this._indexBuffer);
 
-        //if(prg.samplerUniform != undefined){
-        //    glContext.activeTexture(glContext.TEXTURE0);
-        //    glContext.bindTexture(glContext.TEXTURE_2D, rttTexture);
-        //    glContext.uniform1i(prg.samplerUniform, 0);
-        //}
-
         glContext.drawElements(glContext.TRIANGLES, this.indices.length, glContext.UNSIGNED_SHORT, 0);
     }
 }

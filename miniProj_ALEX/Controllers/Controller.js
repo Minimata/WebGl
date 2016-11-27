@@ -5,7 +5,7 @@
 var canvasName = 'webgl-canvas';
 var myCanvas;
 
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 10), front: vec3.fromValues(0, 0, -1)});
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 1), front: vec3.fromValues(0, 0, -1)});
 
 var glContext = null;
 var prg = null;
@@ -22,9 +22,13 @@ var finalShaderNames = [
 var rttFrameBuffer;
 var rttTexture;
 
-var oceanTileSize = 1024;
+var oceanTileSize = 4096;
+var renderFrameSize = 128;
+var quadSize = 8;
 var allDrawables = [];
+var preprocDrawables = [];
 function Controller_getDrawables() {return allDrawables}
+function Controller_getPreprocDrawables() {return preprocDrawables}
 
 $(function () {
     try {
@@ -35,7 +39,7 @@ $(function () {
 
         m_initDrawables();
 
-        GLTools_logicLoop();
+        //GLTools_logicLoop();
         GLTools_renderLoop();
     }
     catch (e) {
@@ -43,18 +47,30 @@ $(function () {
     }
 });
 
+function m_initDrawables() {
+    preprocDrawables.push(new Quad({width: oceanTileSize, height: oceanTileSize, r: 0.0, g: 0.5, b: 1.0}));
+    allDrawables.push(new Quad({width: quadSize, height: quadSize, r: 0.0, g: 0.5, b: 1.0}));
+    allDrawables.push(new Quad({x: quadSize, y: quadSize, width: quadSize, height: quadSize, r: 0.0, g: 0.5, b: 1.0}));
+}
+
+function m_initEventHandling() {
+    myCanvas.on("mousedown", MouseHanlding_handleMouseDown);
+    $(window).on("mouseup",  MouseHandling_handleMouseUp);
+    $(window).on('mousemove',  MouseHandling_handleMouseMove);
+}
+
 function m_initTextureBuffer() {
     //var ext = gl.getExtension('WEBGL_draw_buffers');
-
 
     //TEXTURE BUFFER
     var textureCoordBuffer = glContext.createBuffer();
     glContext.bindBuffer(glContext.ARRAY_BUFFER, textureCoordBuffer);
+    var tex = 1;
     var textureCoords = [
-        -oceanTileSize / 2, -oceanTileSize / 2,
-        -oceanTileSize / 2, oceanTileSize / 2,
-        oceanTileSize / 2, oceanTileSize / 2,
-        oceanTileSize / 2, -oceanTileSize / 2
+        0, 0,
+        0, tex,
+        tex, 0,
+        tex, tex
     ];
     glContext.bufferData(glContext.ARRAY_BUFFER, new Float32Array(textureCoords), glContext.STATIC_DRAW);
     textureCoordBuffer.itemSize = 2;
@@ -93,20 +109,7 @@ function m_initTextureBuffer() {
     glContext.bindTexture(glContext.TEXTURE_2D, null);
     glContext.bindRenderbuffer(glContext.RENDERBUFFER, null);
     glContext.bindFramebuffer(glContext.FRAMEBUFFER, null);
-
-
 }
-
-function m_initDrawables() {
-    allDrawables.push(new Quad({width: oceanTileSize, height: oceanTileSize, r: 0.0, g: 0.5, b: 1.0}));
-}
-
-function m_initEventHandling() {
-    myCanvas.on("mousedown", MouseHanlding_handleMouseDown);
-    $(window).on("mouseup",  MouseHandling_handleMouseUp);
-    $(window).on('mousemove',  MouseHandling_handleMouseMove);
-}
-
 /**
  * The program contains a series of instructions that tell the Graphic Processing Unit (GPU)
  * what to do with every vertex and fragment that we transmit.

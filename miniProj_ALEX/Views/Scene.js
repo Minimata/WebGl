@@ -19,12 +19,13 @@ function Scene_initScene() {
 }
 
 function Scene_drawScene(deltaTime) {
+	var updater = new QuadInterface();
+	fullTimeMilliseconds += deltaTime;
+	var fullTimeSeconds = fullTimeMilliseconds / 1000;
+
 	glContext.bindFramebuffer(glContext.FRAMEBUFFER, rttFramebuffer);
 	glContext.useProgram(preprocessPrg);
 	currentPrg = preprocessPrg;
-
-	fullTimeMilliseconds += deltaTime;
-	var fullTimeSeconds = fullTimeMilliseconds / 1000;
 
 	glContext.uniform1f(preprocessPrg.uDeltaTime, deltaTime);
 	glContext.uniform1f(preprocessPrg.uFullTime, fullTimeSeconds);
@@ -33,16 +34,15 @@ function Scene_drawScene(deltaTime) {
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 
 	absoluteMatrix = mat4.create();
-	mat4.ortho(absoluteMatrix, -oceanTileSize / 2, oceanTileSize / 2, -oceanTileSize / 2, oceanTileSize / 2,
+	mat4.ortho(absoluteMatrix, -renderFrameSize, renderFrameSize, -renderFrameSize, renderFrameSize,
 	0, 1000);
 	glContext.uniformMatrix4fv(currentPrg.pMatrix, false, pMatrix);
 
-	var toDraw = Controller_getDrawables();
+	var toDraw = Controller_getPreprocDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
+		updater.update(toDraw[i], fullTimeSeconds, deltaTime);
 		toDraw[i].draw(absoluteMatrix, preprocessPrg);
 	}
-
-
 
 	glContext.bindFramebuffer(glContext.FRAMEBUFFER, null);
 	glContext.useProgram(prg);
@@ -59,7 +59,9 @@ function Scene_drawScene(deltaTime) {
 	glContext.bindTexture(glContext.TEXTURE_2D, rttTexture);
 	glContext.uniform1i(prg.samplerUniform, 0);
 
+	toDraw = Controller_getDrawables();
 	for(i = 0; i < toDraw.length; i++) {
+		updater.update(toDraw[i], fullTimeSeconds, deltaTime);
 		toDraw[i].draw(absoluteMatrix, prg);
 	}
 }
@@ -69,8 +71,12 @@ function Scene_updateScene(deltaTime) {
 	var fullTimeSeconds = fullTimeMilliseconds / 1000;
 
 	var updater = new QuadInterface();
-	var toDraw = Controller_getDrawables();
-	for(var i = 0; i < toDraw.length; i++) {
-		updater.update(toDraw[i]);
+	var toUpdate = [];
+	toUpdate.push(Controller_getPreprocDrawables());
+	toUpdate.push(Controller_getDrawables());
+	for(var i = 0; i < toUpdate.length; i++) {
+		for(var j = 0; j < toUpdate[i].length; j++) {
+			updater.update(toUpdate[i][j]);
+		}
 	}
 }

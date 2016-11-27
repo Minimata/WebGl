@@ -56,9 +56,9 @@ void main(void) {
 #define PI 3.14159265358979323846264338327950288419716939937510
 #define G 9.81
 #define E 2.71828182845904523536028747135266249775724709369995
-#define DEPTH 10.0
+#define DEPTH 100.0
 #define NUM_WAVES 7
-#define NUM_GERS_WAVES 6
+#define NUM_GERS_WAVES 1
 
 
 //Getting variables from vertex shader
@@ -124,9 +124,9 @@ float getValueFromWave(Wave w, float aFactor, float fFactor, float oFactor, floa
 
 //Gerstner waves
 struct GerstnerWave {
-    vec2 wavenumber;
+    vec2 direction;
     float amplitude;
-    float phase;
+    float steepness;
     float speed;
 };
 
@@ -143,22 +143,28 @@ struct Surface {
 
 Surface gerstnerWave(vec3 inputVector, GerstnerWave wave) {
 
-    float km = sqrt(pow(wave.wavenumber.x, 2.0) + pow(wave.wavenumber.y, 2.0));
+    vec2 wavenumber = 0.4435*wave.steepness*normalize(wave.direction);
+//    float dirLength = length(wave.direction);
+//    wave.direction = normalize(wave.direction);
+//    wavenumber = wave.direction * wave.steepness / (wave.amplitude);
+
+
+    float km = sqrt(pow(wavenumber.x, 2.0) + pow(wavenumber.y, 2.0));
     float wm = G*km*tanh(km*DEPTH);
-    float theta = wave.wavenumber.x*inputVector.x + wave.wavenumber.y*inputVector.y - wave.speed*wm*uFullTime - wave.phase;
+    float theta = wavenumber.x*inputVector.x + wavenumber.y*inputVector.y - wave.speed*wm*uFullTime;
 
     vec3 newVector = inputVector;
-    newVector.x = (wave.wavenumber.x * wave.amplitude * sin(theta)) / (km/* * tanh(km * DEPTH) */);
-    newVector.y = (wave.wavenumber.y * wave.amplitude * sin(theta)) / (km/* * tanh(km * DEPTH) */);
+    newVector.x = (wavenumber.x * wave.amplitude * sin(theta)) / (km*tanh(km * DEPTH));
+    newVector.y = (wavenumber.y * wave.amplitude * sin(theta)) / (km* tanh(km * DEPTH));
     newVector.z = wave.amplitude * cos(theta);
 
-    vec3 norm1 = vec3(  (pow(wave.wavenumber.x, 2.0) * wave.amplitude * cos(theta)) / (km/* * tanh(km*DEPTH)*/),
-                        (wave.wavenumber.x * wave.wavenumber.y * wave.amplitude * cos(theta)) / (km/* * tanh(km * DEPTH)*/),
-                        (wave.wavenumber.x * wave.amplitude * sin(theta)));
+    vec3 norm1 = vec3(  (pow(wavenumber.x, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
+                        (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
+                        (wavenumber.x * wave.amplitude * sin(theta)));
 
-    vec3 norm2 = vec3(  (wave.wavenumber.x * wave.wavenumber.y * wave.amplitude * cos(theta)) / (km/* * tanh(km*DEPTH)*/),
-                        (pow(wave.wavenumber.y, 2.0) * wave.amplitude * cos(theta)) / (km/* * tanh(km * DEPTH)*/),
-                        (wave.wavenumber.y * wave.amplitude * sin(theta)));
+    vec3 norm2 = vec3(  (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
+                        (pow(wavenumber.y, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
+                        (wavenumber.y * wave.amplitude * sin(theta)));
 
     return Surface(newVector, norm1, norm2);
 }
@@ -209,16 +215,17 @@ void main(void) {
 
 
     //Gerstner displaced waves
-    float ampFactor = 1.3;
-	float speedFactor = 0.07;
+    float ampFactor = 2.0;
+	float speedFactor = 1.0;
 
     GerstnerWave allGersWaves[NUM_GERS_WAVES];
-    allGersWaves[0] = GerstnerWave(0.1*vec2(1, 2), 1.2*ampFactor, 0.0, speedFactor*8.0);
-    allGersWaves[1] = GerstnerWave(0.5*vec2(0.013, 0.017), 0.7*ampFactor, 0.0, speedFactor*5.0);
-    allGersWaves[2] = GerstnerWave(0.2*vec2(-0.7, 0.9), 0.8*ampFactor, 0.0, speedFactor*9.0);
-    allGersWaves[3] = GerstnerWave(0.3*vec2(0.3, -0.5), ampFactor, 0.0, speedFactor*13.0);
-    allGersWaves[4] = GerstnerWave(0.1*vec2(-1, 1), 1.5*ampFactor, 0.0, speedFactor*7.0);
-    allGersWaves[5] = GerstnerWave(0.1*vec2(PI, -1), 0.6*ampFactor, 0.0, speedFactor*23.0);
+    allGersWaves[0] = GerstnerWave(vec2(1, 2), ampFactor, 1.0, speedFactor);
+//    allGersWaves[0] = GerstnerWave(0.1*vec2(1, 2), 1.2*ampFactor, 0.0, speedFactor);
+//    allGersWaves[1] = GerstnerWave(0.5*vec2(0.013, 0.017), 0.7*ampFactor, 0.0, speedFactor);
+//    allGersWaves[2] = GerstnerWave(0.2*vec2(-0.7, 0.9), 0.6*ampFactor, 0.0, speedFactor);
+//    allGersWaves[3] = GerstnerWave(0.3*vec2(0.3, -0.5), ampFactor, 0.0, speedFactor);
+//    allGersWaves[4] = GerstnerWave(0.1*vec2(-1, 1), 1.0*ampFactor, 0.0, speedFactor);
+//    allGersWaves[5] = GerstnerWave(0.1*vec2(PI, -1), 0.6*ampFactor, 0.0, speedFactor);
 
     vec3 tmpPos = vec3(0.0);
     vec3 tmpNorm1 = vec3(0.0);
@@ -244,7 +251,7 @@ void main(void) {
     float depth = (-1.0 / uDepthOfView)*length(absPos - uCameraPosition) + 1.0;
 
 	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
-	vec4 depthMap = vec4(vec3(depth), 1.0);
+	vec4 depthMap = vec4(vec3(depth), 1.0); //can't use it with FBO like this
 	vec4 heightMap = vec4(vec3(absPos.z / 10.0), 1.0);
     vec4 ambientMap = vec4(vColor.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
 
@@ -254,7 +261,7 @@ void main(void) {
 //    	pow(smoothstep(0.0,-0.05,dir.y),0.3));
 
 
-    gl_FragColor = normalMap;
+    gl_FragColor = ambientMap;
 }
 
 
