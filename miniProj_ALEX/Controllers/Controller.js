@@ -5,7 +5,6 @@
 var canvasName = 'webgl-canvas';
 var myCanvas;
 
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 1), front: vec3.fromValues(0, 0, -1)});
 
 var glContext = null;
 var prg = null;
@@ -27,6 +26,9 @@ var renderFrameSize = 128;
 var quadSize = 8;
 var allDrawables = [];
 var preprocDrawables = [];
+
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 0), front: vec3.fromValues(0, 0, -1)});
+
 function Controller_getDrawables() {return allDrawables}
 function Controller_getPreprocDrawables() {return preprocDrawables}
 
@@ -49,8 +51,12 @@ $(function () {
 
 function m_initDrawables() {
     preprocDrawables.push(new Quad({width: oceanTileSize, height: oceanTileSize, r: 0.0, g: 0.5, b: 1.0}));
-    allDrawables.push(new Quad({width: quadSize, height: quadSize, r: 0.0, g: 0.5, b: 1.0}));
-    allDrawables.push(new Quad({x: quadSize, y: quadSize, width: quadSize, height: quadSize, r: 0.0, g: 0.5, b: 1.0}));
+    allDrawables.push(new Quad({z:-quadSize / 2, width: quadSize, height: quadSize}));
+    allDrawables.push(new Quad({z: quadSize / 2, width: quadSize, height: quadSize}));
+    allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
 }
 
 function m_initEventHandling() {

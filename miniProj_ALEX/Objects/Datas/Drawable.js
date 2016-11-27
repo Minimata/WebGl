@@ -8,8 +8,8 @@ class Drawable {
             x = 0,
             y = 0,
             z = 0,
-            r = 1,
-            g = 1,
+            r = 0,
+            g = 0.5,
             b = 1,
             a = 1,
             } = args;

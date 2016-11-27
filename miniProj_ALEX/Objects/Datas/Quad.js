@@ -8,7 +8,7 @@ class Quad extends Drawable {
         var {
             width = 1,
             height = 1,
-            depth = 0,
+            depth = 1,
             v1 = [-1, -1, 0],
             v2 = [-1, 1, 0],
             v3 = [1, -1, 0],
