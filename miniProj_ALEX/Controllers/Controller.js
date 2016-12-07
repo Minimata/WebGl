@@ -4,7 +4,7 @@
 
 var canvasName = 'webgl-canvas';
 var myCanvas;
-var NUMBER_TEXTURES = 4;
+var NUMBER_TEXTURES = 5;
 var ext;
 
 var glContext = null;
@@ -81,12 +81,14 @@ function m_initFrameBuffers() {
     glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT1_WEBGL, glContext.TEXTURE_2D, tx[1], 0);
     glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT2_WEBGL, glContext.TEXTURE_2D, tx[2], 0);
     glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT3_WEBGL, glContext.TEXTURE_2D, tx[3], 0);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT4_WEBGL, glContext.TEXTURE_2D, tx[4], 0);
 
     ext.drawBuffersWEBGL([
         ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
         ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
         ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
-        ext.COLOR_ATTACHMENT3_WEBGL  // gl_FragData[3]
+        ext.COLOR_ATTACHMENT3_WEBGL, // gl_FragData[3]
+        ext.COLOR_ATTACHMENT4_WEBGL  // gl_FragData[4]
     ]);
 }
 
@@ -192,7 +194,12 @@ function m_initShaderParameters(prg, preprocessPrg) {
 
     prg.uCameraPosition         = glContext.getUniformLocation(prg, 'uCameraPosition');
 
-    prg.samplerUniform            = glContext.getUniformLocation(prg, 'uSampler');
+    prg.ambientMapSampler            = glContext.getUniformLocation(prg, 'uAmbientMapSampler');
+    prg.diffuseMapSampler            = glContext.getUniformLocation(prg, 'uDiffuseMapSampler');
+    prg.normalMapSampler            = glContext.getUniformLocation(prg, 'uNormalMapSampler');
+    prg.heightMapSampler            = glContext.getUniformLocation(prg, 'uHeightMapSampler');
+    prg.relNormalMapSampler            = glContext.getUniformLocation(prg, 'uRelNormalMapSampler');
+    //prg.depthMapSampler            = glContext.getUniformLocation(prg, 'uDepthMapSampler');
 
 
     glContext.useProgram(preprocessPrg);

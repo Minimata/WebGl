@@ -165,15 +165,16 @@ Surface gerstnerWave(vec3 inputVector, GerstnerWave wave) {
     vec3 newVector = inputVector;
     newVector.x = (wavenumber.x * wave.amplitude * sin(theta)) / (km*tanh(km * DEPTH));
     newVector.y = (wavenumber.y * wave.amplitude * sin(theta)) / (km* tanh(km * DEPTH));
-    newVector.z = wave.relativeHeight * wave.amplitude * cos(theta);
+    newVector.z = wave.amplitude * cos(theta);
+    newVector.z = (newVector.z + wave.amplitude) / 2.0;
 
     vec3 norm1 = vec3(  (pow(wavenumber.x, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
                         (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
-                        (wave.relativeHeight * wavenumber.x * wave.amplitude * sin(theta)));
+                        (wavenumber.x * wave.amplitude * sin(theta)));
 
     vec3 norm2 = vec3(  (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
                         (pow(wavenumber.y, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
-                        (wave.relativeHeight * wavenumber.y * wave.amplitude * sin(theta)));
+                        (wavenumber.y * wave.amplitude * sin(theta)));
 
     return Surface(newVector, norm1, norm2);
 }
@@ -213,12 +214,11 @@ void main(void) {
         color[i] = valueAtI / float(NUM_WAVES);
     }
 
-
     //Gerstner displaced waves
     float ampFactor = 1.0; //between 0.0 and 2.0
     float steepFactor = 1.0; // between 0.0 and 1.0
 	float speedFactor = 1.0; //whatever
-	float heightFactor = 1.5; //whatever
+	float heightFactor = 1.0; //whatever
 	float frequencyFactor = 100.0; //whatever
 
     GerstnerWave allGersWaves[NUM_GERS_WAVES];
@@ -226,20 +226,21 @@ void main(void) {
     allGersWaves[1] = GerstnerWave(vec2(1, 1), 1.2*ampFactor, 0.7*steepFactor, 0.7*speedFactor, 1.2*heightFactor, 0.4*frequencyFactor);
     allGersWaves[2] = GerstnerWave(vec2(0.5, 1), 0.5*ampFactor, 0.5*steepFactor, 0.7*speedFactor, 1.5*heightFactor, 1.2*frequencyFactor);
     allGersWaves[3] = GerstnerWave(vec2(-2, 1), 1.2*ampFactor, 0.7*steepFactor, 0.1*speedFactor, 1.0*heightFactor, 0.7*frequencyFactor);
+    float maxWaveHeight = 1.5*heightFactor;
 
     vec3 tmpPos = vec3(0.0);
     vec3 tmpNorm1 = vec3(0.0);
     vec3 tmpNorm2 = vec3(0.0);
     for(int i = 0; i < NUM_GERS_WAVES; i++){
         Surface s = gerstnerWave(vVertexPos, allGersWaves[i]);
-        tmpPos += s.pos;
+        tmpPos.xy += s.pos.xy;
+        tmpPos.z += allGersWaves[i].relativeHeight*s.pos.z;
         tmpNorm1 += s.norm1;
         tmpNorm2 += s.norm2;
     }
 
     //Creating height map
-    //This here can't work - need to be between 0 and 1 and keep proprtions of different amplitudes between waves
-    float height = tmpPos.z;
+    float height = tmpPos.z / (maxWaveHeight*float(NUM_GERS_WAVES));
 
     //Creating normal map
     vec3 normal1 = vec3(1.0 - tmpNorm1.x, -tmpNorm1.y, -tmpNorm1.z);
@@ -252,22 +253,25 @@ void main(void) {
     float depth = (-1.0 / uDepthOfView)*length(pointToCam) + 1.0;
 
     vec3 tmpMap = normalize(pointToCam);
-    vec4 relativeNormalMap = normalize(vec4(vec3(tmpMap.x + 0.5, tmpMap.y + 0.5, tmpMap.z), 1.0));
+
     vec4 ambientMap = color;
-	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
-	vec4 depthMap = vec4(vec3(depth), 1.0);
-	vec4 heightMap = vec4(vec3(absPos.z / 10.0), 1.0);
     vec4 diffuseMap = vec4(color.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
+	vec4 heightMap = vec4(vec3(height), 1.0);
+    vec4 relativeNormalMap = normalize(vec4(vec3(tmpMap.x + 0.5, tmpMap.y + 0.5, tmpMap.z), 1.0));
+	vec4 depthMap = vec4(vec3(depth), 1.0);
 
 //    vec3 finalColor = mix(
 //        getSkyColor(dir),
 //        color.xyz,
 //    	pow(smoothstep(0.0,-0.05,dir.y),0.3));
 
-    gl_FragData[0] = diffuseMap;
-    gl_FragData[1] = normalMap;
-    gl_FragData[2] = heightMap;
-    gl_FragData[3] = relativeNormalMap;
+    gl_FragData[0] = ambientMap;
+    gl_FragData[1] = diffuseMap;
+    gl_FragData[2] = normalMap;
+    gl_FragData[3] = heightMap;
+    gl_FragData[4] = relativeNormalMap;
+//    gl_FragData[5] = depthMap;
 //    gl_FragColor = diffuseMap;
 }
     </script>
@@ -304,8 +308,6 @@ void main(void) {
     </script>
 
 
-
-
     <!-- fragment shader -->
     <script id="shader-fs" type="x-shader/x-fragment">
 
@@ -315,7 +317,12 @@ void main(void) {
     precision highp float;
 #endif
 
-uniform sampler2D uSampler;
+uniform sampler2D uAmbientMapSampler;
+uniform sampler2D uDiffuseMapSampler;
+uniform sampler2D uNormalMapSampler;
+uniform sampler2D uHeightMapSampler;
+uniform sampler2D uRelNormalMapSampler;
+//uniform sampler2D uDepthSampler;
 
 //Getting variables from vertex shader
 varying vec4 vColor;
@@ -323,7 +330,12 @@ varying vec3 vVertexPos;
 varying vec2 vTextureCoord;
 
 void main(void) {
-    gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    vec4 ambientColor = texture2D(uAmbientMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    vec4 diffuseColor = texture2D(uDiffuseMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    vec4 normalColor = texture2D(uNormalMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    vec4 heightColor = texture2D(uHeightMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    vec4 relNormalColor = texture2D(uRelNormalMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    gl_FragColor = normalColor;
 }
     </script>
 </head>

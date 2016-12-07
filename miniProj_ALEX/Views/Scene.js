@@ -62,10 +62,20 @@ function Scene_drawScene(deltaTime) {
 	glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
 	absoluteMatrix = mainCamera.update();
 
+	var allPRGSamplerLocations = [
+		prg.ambientMapSampler,
+		prg.diffuseMapSampler,
+		prg.normalMapSampler,
+		prg.heightMapSampler,
+		prg.relNormalMapSampler
+	];
+
 	//Sampling the render of the first pass and update space
-	glContext.activeTexture(glContext.TEXTURE0);
-	glContext.bindTexture(glContext.TEXTURE_2D, tx[1]);
-	glContext.uniform1i(prg.samplerUniform, 0);
+	for(i = 0; i < NUMBER_TEXTURES; i++) {
+		glContext.activeTexture(glContext.TEXTURE0 + i);
+		glContext.bindTexture(glContext.TEXTURE_2D, tx[i]);
+		glContext.uniform1i(allPRGSamplerLocations[i], i);
+	}
 
 	toDraw = Controller_getDrawables();
 	for(i = 0; i < toDraw.length; i++) {
