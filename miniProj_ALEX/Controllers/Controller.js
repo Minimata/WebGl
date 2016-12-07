@@ -4,11 +4,13 @@
 
 var canvasName = 'webgl-canvas';
 var myCanvas;
-
+var NUMBER_TEXTURES = 4;
+var ext;
 
 var glContext = null;
 var prg = null;
 var preprocessPrg = null;
+
 var preprocessingShaderNames = [
     "preprocess-fs",
     "preprocess-vs"
@@ -18,16 +20,19 @@ var finalShaderNames = [
     "shader-vs"
 ];
 
-var rttFrameBuffer;
-var rttTexture;
+//var rttFrameBuffer;
+//var rttTexture;
+var tx = [];
+var fbo = [];
+var mainFBO;
 
 var oceanTileSize = 4096;
-var renderFrameSize = 128;
-var quadSize = 8;
+var renderFrameSize = 1;
+var quadSize = 1024;
 var allDrawables = [];
 var preprocDrawables = [];
 
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 0), front: vec3.fromValues(0, 0, -1)});
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 1000), front: vec3.fromValues(0, 0, -1)});
 
 function Controller_getDrawables() {return allDrawables}
 function Controller_getPreprocDrawables() {return preprocDrawables}
@@ -37,7 +42,7 @@ $(function () {
         m_initProgram();
         Scene_initScene();
         m_initEventHandling();
-        m_initTextureBuffer();
+        m_initFrameBuffers();
 
         m_initDrawables();
 
@@ -50,13 +55,13 @@ $(function () {
 });
 
 function m_initDrawables() {
-    preprocDrawables.push(new Quad({width: oceanTileSize, height: oceanTileSize, r: 0.0, g: 0.5, b: 1.0}));
-    allDrawables.push(new Quad({z:-quadSize / 2, width: quadSize, height: quadSize}));
-    allDrawables.push(new Quad({z: quadSize / 2, width: quadSize, height: quadSize}));
-    allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
-    allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
-    allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
-    allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    preprocDrawables.push(new Quad({width: oceanTileSize, height: oceanTileSize}));
+    allDrawables.push(new Quad({/*z:-quadSize / 2, */width: quadSize, height: quadSize}));
+    //allDrawables.push(new Quad({z: quadSize / 2, width: quadSize, height: quadSize}));
+    //allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    //allDrawables.push(new Quad({v1:[0, -1, -1], v2:[0, 1, -1], v3:[0, -1, 1], v4:[0, 1, 1], x: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    //allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: -quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
+    //allDrawables.push(new Quad({v1:[-1, 0, 1], v2:[-1, 0, -1], v3:[1, 0, 1], v4:[1, 0, -1], y: quadSize / 2, width: quadSize, height: quadSize, depth: quadSize}));
 }
 
 function m_initEventHandling() {
@@ -65,8 +70,27 @@ function m_initEventHandling() {
     $(window).on('mousemove',  MouseHandling_handleMouseMove);
 }
 
-function m_initTextureBuffer() {
-    //var ext = gl.getExtension('WEBGL_draw_buffers');
+function m_initFrameBuffers() {
+    for(var i = 0; i < NUMBER_TEXTURES; i++) {
+        m_initTextureBuffer(i);
+    }
+
+    mainFBO = glContext.createFramebuffer();
+    glContext.bindFramebuffer(glContext.FRAMEBUFFER, mainFBO);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL, glContext.TEXTURE_2D, tx[0], 0);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT1_WEBGL, glContext.TEXTURE_2D, tx[1], 0);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT2_WEBGL, glContext.TEXTURE_2D, tx[2], 0);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT3_WEBGL, glContext.TEXTURE_2D, tx[3], 0);
+
+    ext.drawBuffersWEBGL([
+        ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
+        ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
+        ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
+        ext.COLOR_ATTACHMENT3_WEBGL  // gl_FragData[3]
+    ]);
+}
+
+function m_initTextureBuffer(index) {
 
     //TEXTURE BUFFER
     var textureCoordBuffer = glContext.createBuffer();
@@ -86,21 +110,20 @@ function m_initTextureBuffer() {
     glContext.vertexAttribPointer(prg.textureCoordAttribute, textureCoordBuffer.itemSize, glContext.FLOAT, false, 0, 0);
 
 
+    fbo[index] = glContext.createFramebuffer();
+    glContext.bindFramebuffer(glContext.FRAMEBUFFER, fbo[index]);
+    fbo[index].width = oceanTileSize;
+    fbo[index].height = oceanTileSize;
 
-    rttFramebuffer = glContext.createFramebuffer();
-    glContext.bindFramebuffer(glContext.FRAMEBUFFER, rttFramebuffer);
-    rttFramebuffer.width = oceanTileSize;
-    rttFramebuffer.height = oceanTileSize;
-
-    rttTexture = glContext.createTexture();
-    glContext.bindTexture(glContext.TEXTURE_2D, rttTexture);
+    tx[index] = glContext.createTexture();
+    glContext.bindTexture(glContext.TEXTURE_2D, tx[index]);
     glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MIN_FILTER, glContext.NEAREST);
     glContext.texParameteri(glContext.TEXTURE_2D, glContext.TEXTURE_MAG_FILTER, glContext.NEAREST);
     glContext.texImage2D(glContext.TEXTURE_2D,
         0,
         glContext.RGBA,
-        rttFramebuffer.width,
-        rttFramebuffer.height,
+        fbo[index].width,
+        fbo[index].height,
         0,
         glContext.RGBA,
         glContext.UNSIGNED_BYTE,
@@ -108,8 +131,8 @@ function m_initTextureBuffer() {
 
     var renderBuffer = glContext.createRenderbuffer();
     glContext.bindRenderbuffer(glContext.RENDERBUFFER, renderBuffer);
-    glContext.renderbufferStorage(glContext.RENDERBUFFER, glContext.DEPTH_COMPONENT16, rttFramebuffer.width, rttFramebuffer.height);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, glContext.COLOR_ATTACHMENT0, glContext.TEXTURE_2D, rttTexture, 0);
+    glContext.renderbufferStorage(glContext.RENDERBUFFER, glContext.DEPTH_COMPONENT16, fbo[index].width, fbo[index].height);
+    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, glContext.COLOR_ATTACHMENT0, glContext.TEXTURE_2D, tx[index], 0);
     glContext.framebufferRenderbuffer(glContext.FRAMEBUFFER, glContext.DEPTH_ATTACHMENT, glContext.RENDERBUFFER, renderBuffer);
 
     glContext.bindTexture(glContext.TEXTURE_2D, null);
@@ -126,6 +149,9 @@ function m_initProgram() {
     glContext = GLTools_getGLContext(canvasName);
     prg = glContext.createProgram();
     preprocessPrg = glContext.createProgram();
+    ext = glContext.getExtension( 'WEBGL_draw_buffers' ) ||
+        glContext.getExtension( "GL_EXT_draw_buffers" ) ||
+        glContext.getExtension( "EXT_draw_buffers" );
 
     for(var i = 0; i < finalShaderNames.length; i++) {
         glContext.attachShader(prg, GLTools_initShader(finalShaderNames[i], glContext));

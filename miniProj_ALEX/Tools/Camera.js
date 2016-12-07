@@ -161,8 +161,6 @@ class Camera {
     }
 
     update() {
-        glContext.uniform3f(prg.uCameraPosition, this.pos[0], this.pos[1], this.pos[2]);
-
         var rotQuat = rotateModelViewMatrixUsingQuaternion(this);
         this.updateVectorsFromQuat(rotQuat);
         var finalMatrix = mat4.create();

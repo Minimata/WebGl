@@ -6,7 +6,6 @@
 var pMatrix = mat4.create();
 var fullTimeMilliseconds;
 var absoluteMatrix;
-var currentPrg = null;
 
 //Initialisation of the scene
 function Scene_initScene() {
@@ -15,28 +14,35 @@ function Scene_initScene() {
 	glContext.viewport(0, 0, c_width, c_height);
 	glContext.enable(glContext.DEPTH_TEST);
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
-	currentPrg = preprocessPrg;
 }
 
 function Scene_drawScene(deltaTime) {
+	//Setting up logical variables
 	var updater = new QuadInterface();
 	fullTimeMilliseconds += deltaTime;
 	var fullTimeSeconds = fullTimeMilliseconds / 1000;
 
-	glContext.bindFramebuffer(glContext.FRAMEBUFFER, rttFramebuffer);
+	//Changing shaders and output buffers for preprocessing
+	glContext.bindFramebuffer(glContext.FRAMEBUFFER, mainFBO);
 	glContext.useProgram(preprocessPrg);
-	currentPrg = preprocessPrg;
 
+	//Sending data to shaders
 	glContext.uniform1f(preprocessPrg.uDeltaTime, deltaTime);
 	glContext.uniform1f(preprocessPrg.uFullTime, fullTimeSeconds);
+	//Sending datas do shaders. Camera pos must be scaled between the 2 shader spaces
+	//TEMPORARY SOLUTION THESE UGLY FACTORS
+	glContext.uniform3f(preprocessPrg.uCameraPosition,
+		1.33*mainCamera.pos[0] * renderFrameSize / quadSize,
+		0.83*mainCamera.pos[1] * renderFrameSize / quadSize,
+		-mainCamera.pos[2]);
 
+	//Rendering the preprocessed shaders
 	glContext.viewport(0, 0, oceanTileSize, oceanTileSize);
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
-
 	absoluteMatrix = mat4.create();
 	mat4.ortho(absoluteMatrix, -renderFrameSize, renderFrameSize, -renderFrameSize, renderFrameSize,
 	0, 1000);
-	glContext.uniformMatrix4fv(currentPrg.pMatrix, false, pMatrix);
+	glContext.uniformMatrix4fv(preprocessPrg.pMatrix, false, pMatrix);
 
 	var toDraw = Controller_getPreprocDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
@@ -44,19 +50,21 @@ function Scene_drawScene(deltaTime) {
 		toDraw[i].draw(absoluteMatrix, preprocessPrg);
 	}
 
+	//Coming back to default shaders and output
 	glContext.bindFramebuffer(glContext.FRAMEBUFFER, null);
 	glContext.useProgram(prg);
-	currentPrg = prg;
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
 
+
+	//Setting up rendering
 	glContext.viewport(0, 0, c_width, c_height);
 	mat4.perspective(pMatrix, GLTools_degToRad(45), c_width / c_height, 0.1, 10000);
-	glContext.uniformMatrix4fv(currentPrg.pMatrixUniform, false, pMatrix);
+	glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
 	absoluteMatrix = mainCamera.update();
 
-	//TEXTURING
+	//Sampling the render of the first pass and update space
 	glContext.activeTexture(glContext.TEXTURE0);
-	glContext.bindTexture(glContext.TEXTURE_2D, rttTexture);
+	glContext.bindTexture(glContext.TEXTURE_2D, tx[1]);
 	glContext.uniform1i(prg.samplerUniform, 0);
 
 	toDraw = Controller_getDrawables();

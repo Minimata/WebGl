@@ -104,6 +104,7 @@ function GLTools_initShader(id, glContext) {
     glContext.shaderSource(shader, str);
     glContext.compileShader(shader);
 
+
     if (!glContext.getShaderParameter(shader, glContext.COMPILE_STATUS)) {
         throw new BadInitShaderException("Error GLTools_initShader - shader doesn't compile. " + glContext.getShaderInfoLog(shader));
     }
