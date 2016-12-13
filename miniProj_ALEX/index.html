@@ -36,7 +36,6 @@ uniform mat4 uMVMatrix;
 varying vec3 vVertexPos;
 varying vec4 vColor;
 
-
 void main(void) {
     //Setting the values sent to frag
     vColor = aColor;
@@ -71,11 +70,6 @@ varying vec3 vVertexPos;
 //Getting timestamps
 uniform float uDeltaTime;
 uniform float uFullTime;
-
-uniform vec3 uCameraPosition;
-
-vec3 uDirectionalLight = normalize(vec3(1.0, 1.0, 3.0));
-float uDepthOfView = 100.0;
 
 
 //Defining a wave
@@ -122,15 +116,6 @@ float wave(float initValue, float pos, float frequency, float amplitude, float s
 float getValueFromWave(Wave w, float aFactor, float fFactor, float oFactor, float sFactor) {
     float tmpPos = f_circular(w.position, w.center, w.stretch);
     return wave(w.revolvingColor, tmpPos, fFactor*w.frequency, aFactor*w.amplitude, sFactor*w.speed);
-}
-// sky
-vec3 getSkyColor(vec3 e) {
-    e.y = max(e.y,0.0);
-    vec3 ret;
-    ret.x = pow(1.0-e.y,2.0);
-    ret.y = 1.0-e.y;
-    ret.z = 0.6+(1.0-e.y)*0.4;
-    return ret;
 }
 
 float tanh(float seed) {
@@ -219,7 +204,7 @@ void main(void) {
     float steepFactor = 1.0; // between 0.0 and 1.0
 	float speedFactor = 1.0; //whatever
 	float heightFactor = 1.0; //whatever
-	float frequencyFactor = 100.0; //whatever
+	float frequencyFactor = 300.0; //whatever
 
     GerstnerWave allGersWaves[NUM_GERS_WAVES];
     allGersWaves[0] = GerstnerWave(vec2(-1, 1), ampFactor, 0.5*steepFactor, speedFactor, heightFactor, frequencyFactor);
@@ -240,7 +225,7 @@ void main(void) {
     }
 
     //Creating height map
-    float height = tmpPos.z / (maxWaveHeight*float(NUM_GERS_WAVES));
+    tmpPos.z = tmpPos.z / (maxWaveHeight*float(NUM_GERS_WAVES));
 
     //Creating normal map
     vec3 normal1 = vec3(1.0 - tmpNorm1.x, -tmpNorm1.y, -tmpNorm1.z);
@@ -248,31 +233,24 @@ void main(void) {
     vec3 normal = -normalize(cross(normal2, normal1));
 
     //Creating depth map
-    vec3 absPos = vVertexPos + tmpPos;
-    vec3 pointToCam = absPos - uCameraPosition;
-    float depth = (-1.0 / uDepthOfView)*length(pointToCam) + 1.0;
+//    vec3 absPos = vVertexPos + tmpPos;
+//    vec3 pointToCam = absPos - uCameraPosition;
+//    float depth = (-1.0 / uDepthOfView)*length(pointToCam) + 1.0;
 
-    vec3 tmpMap = normalize(pointToCam);
+//    vec3 tmpMap = normalize(pointToCam);
 
     vec4 ambientMap = color;
-    vec4 diffuseMap = vec4(color.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+    ambientMap.a = tmpPos.z; //heightMap in ambiantColor
+//    vec4 diffuseMap = vec4(color.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
 	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
-	vec4 heightMap = vec4(vec3(height), 1.0);
-    vec4 relativeNormalMap = normalize(vec4(vec3(tmpMap.x + 0.5, tmpMap.y + 0.5, tmpMap.z), 1.0));
-	vec4 depthMap = vec4(vec3(depth), 1.0);
+//	vec4 heightMap = vec4(vec3(tmpPos.z), 1.0);
 
-//    vec3 finalColor = mix(
-//        getSkyColor(dir),
-//        color.xyz,
-//    	pow(smoothstep(0.0,-0.05,dir.y),0.3));
+//    vec4 relativeNormalMap = normalize(vec4(vec3(tmpMap.x + 0.5, tmpMap.y + 0.5, tmpMap.z), 1.0));
+//	vec4 depthMap = vec4(vec3(depth), 1.0);
 
     gl_FragData[0] = ambientMap;
-    gl_FragData[1] = diffuseMap;
-    gl_FragData[2] = normalMap;
-    gl_FragData[3] = heightMap;
-    gl_FragData[4] = relativeNormalMap;
-//    gl_FragData[5] = depthMap;
-//    gl_FragColor = diffuseMap;
+    gl_FragData[1] = normalMap;
+//    gl_FragData[2] = heightMap;
 }
     </script>
 
@@ -294,13 +272,16 @@ uniform mat4 uPMatrix;
 varying vec3 vVertexPos;
 varying vec4 vColor;
 varying vec2 vTextureCoord;
-
+varying vec3 cameraSpacePosition;
 
 void main(void) {
     //Setting the values sent to frag
     vColor = aColor;
     vVertexPos = aVertexPosition;
     vTextureCoord = aTextureCoord;
+    mat3 rotMat = mat3(uMVMatrix);
+    vec3 d = vec3(uMVMatrix[3]);
+    cameraSpacePosition = -d * rotMat;
 
     //Rendering final positions of vertices in world
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
@@ -317,25 +298,70 @@ void main(void) {
     precision highp float;
 #endif
 
+#define ITERATIONS_PARALLAX 10
+#define PRECISION 100.0
+
 uniform sampler2D uAmbientMapSampler;
-uniform sampler2D uDiffuseMapSampler;
 uniform sampler2D uNormalMapSampler;
-uniform sampler2D uHeightMapSampler;
-uniform sampler2D uRelNormalMapSampler;
+//uniform sampler2D uHeightMapSampler;
+//uniform sampler2D uDiffuseMapSampler;
+//uniform sampler2D uRelNormalMapSampler;
 //uniform sampler2D uDepthSampler;
 
 //Getting variables from vertex shader
 varying vec4 vColor;
 varying vec3 vVertexPos;
 varying vec2 vTextureCoord;
+varying vec3 cameraSpacePosition;
+
+//Render attributes
+vec3 uDirectionalLight = normalize(vec3(1.0, 1.0, 3.0));
+float uDepthOfView = 100.0;
 
 void main(void) {
-    vec4 ambientColor = texture2D(uAmbientMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    vec4 diffuseColor = texture2D(uDiffuseMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    vec4 normalColor = texture2D(uNormalMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    vec4 heightColor = texture2D(uHeightMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    vec4 relNormalColor = texture2D(uRelNormalMapSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    gl_FragColor = normalColor;
+    float waveAmplitude = 1.0;
+    vec2 point = vec2(vTextureCoord.s, vTextureCoord.t);
+    vec4 ambientColor = texture2D(uAmbientMapSampler, point);
+    vec4 normalColor = texture2D(uNormalMapSampler, point);
+//    vec4 heightColor = texture2D(uHeightMapSampler, point);
+//    vec4 diffuseColor = texture2D(uDiffuseMapSampler, point);
+//    vec4 relNormalColor = texture2D(uRelNormalMapSampler, point);
+
+
+    float height = ambientColor.a;
+    vec4 heightColor = vec4(vec3(height), 1.0);
+    vec3 normal = vec3(normalColor.x - 0.5, normalColor.y - 0.5, normalColor.z);
+    vec4 diffuseColor = vec4(ambientColor.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+
+    vec3 camPos = normalize(cameraSpacePosition);
+    vec3 pointToCam = camPos - vec3(point, 0.0);
+    vec4 relativeNormalMap = normalize(vec4(vec3(normalize(pointToCam)), 1.0));
+    relativeNormalMap.r += 0.5;
+    relativeNormalMap.g += 0.5;
+
+    //PARALLAX MAPPING
+//    vec3 pointToCam = normalize(vec3(relNormalColor.x - 0.5, relNormalColor.y - 0.5, relNormalColor.z));
+//    vec3 delta = pointToCam / PRECISION;
+//    pointToCam /= PRECISION;
+//    vec2 PTCProj = pointToCam.xy;
+//    for(int i = 0; i < int(PRECISION); i++){
+//        pointToCam += delta;
+//        if(pointToCam.z < texture2D(uHeightMapSampler, point + PTCProj).z){
+//            PTCProj = pointToCam.xy;
+//        }
+//    }
+
+//    vec2 PTCProj = pointToCam.xy;
+//    for(int i = 0; i < ITERATIONS_PARALLAX; i++) {
+//        pointToCam += pointToCam * (texture2D(uHeightMapSampler, point + PTCProj).z - pointToCam.z);
+//        PTCProj = pointToCam.xy;
+//    }
+
+
+//    vec4 finalColor = texture2D(uDiffuseMapSampler, point + PTCProj);
+
+
+    gl_FragColor = relativeNormalMap;
 }
     </script>
 </head>

@@ -2,15 +2,13 @@
  * Created by alexandre on 28.09.2016.
  */
 
+//MAIN
 var canvasName = 'webgl-canvas';
 var myCanvas;
-var NUMBER_TEXTURES = 5;
-var ext;
-
 var glContext = null;
-var prg = null;
-var preprocessPrg = null;
+var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 10), front: vec3.fromValues(0, 0, -1)});
 
+//SHADERS
 var preprocessingShaderNames = [
     "preprocess-fs",
     "preprocess-vs"
@@ -20,19 +18,22 @@ var finalShaderNames = [
     "shader-vs"
 ];
 
-//var rttFrameBuffer;
-//var rttTexture;
+//RENDER
 var tx = [];
 var fbo = [];
 var mainFBO;
+var prg = null;
+var preprocessPrg = null;
+var NUMBER_TEXTURES = 2;
+var ext;
 
+//DRAWABLES
 var oceanTileSize = 4096;
 var renderFrameSize = 1;
-var quadSize = 1024;
+var quadSize = 64;
 var allDrawables = [];
 var preprocDrawables = [];
 
-var mainCamera = new Camera({pos: vec3.fromValues(0, 0, 1000), front: vec3.fromValues(0, 0, -1)});
 
 function Controller_getDrawables() {return allDrawables}
 function Controller_getPreprocDrawables() {return preprocDrawables}
@@ -71,25 +72,20 @@ function m_initEventHandling() {
 }
 
 function m_initFrameBuffers() {
-    for(var i = 0; i < NUMBER_TEXTURES; i++) {
+    var i;
+
+    for(i = 0; i < NUMBER_TEXTURES; i++) {
         m_initTextureBuffer(i);
     }
 
     mainFBO = glContext.createFramebuffer();
     glContext.bindFramebuffer(glContext.FRAMEBUFFER, mainFBO);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL, glContext.TEXTURE_2D, tx[0], 0);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT1_WEBGL, glContext.TEXTURE_2D, tx[1], 0);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT2_WEBGL, glContext.TEXTURE_2D, tx[2], 0);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT3_WEBGL, glContext.TEXTURE_2D, tx[3], 0);
-    glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT4_WEBGL, glContext.TEXTURE_2D, tx[4], 0);
-
-    ext.drawBuffersWEBGL([
-        ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
-        ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
-        ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
-        ext.COLOR_ATTACHMENT3_WEBGL, // gl_FragData[3]
-        ext.COLOR_ATTACHMENT4_WEBGL  // gl_FragData[4]
-    ]);
+    var colorArrays = [];
+    for(i = 0; i < NUMBER_TEXTURES; i++) {
+        glContext.framebufferTexture2D(glContext.FRAMEBUFFER, ext.COLOR_ATTACHMENT0_WEBGL + i, glContext.TEXTURE_2D, tx[i], 0);
+        colorArrays.push(ext.COLOR_ATTACHMENT0_WEBGL + i);
+    }
+    ext.drawBuffersWEBGL(colorArrays);
 }
 
 function m_initTextureBuffer(index) {
@@ -110,7 +106,6 @@ function m_initTextureBuffer(index) {
 
     glContext.bindBuffer(glContext.ARRAY_BUFFER, textureCoordBuffer);
     glContext.vertexAttribPointer(prg.textureCoordAttribute, textureCoordBuffer.itemSize, glContext.FLOAT, false, 0, 0);
-
 
     fbo[index] = glContext.createFramebuffer();
     glContext.bindFramebuffer(glContext.FRAMEBUFFER, fbo[index]);
@@ -195,10 +190,10 @@ function m_initShaderParameters(prg, preprocessPrg) {
     prg.uCameraPosition         = glContext.getUniformLocation(prg, 'uCameraPosition');
 
     prg.ambientMapSampler            = glContext.getUniformLocation(prg, 'uAmbientMapSampler');
-    prg.diffuseMapSampler            = glContext.getUniformLocation(prg, 'uDiffuseMapSampler');
     prg.normalMapSampler            = glContext.getUniformLocation(prg, 'uNormalMapSampler');
-    prg.heightMapSampler            = glContext.getUniformLocation(prg, 'uHeightMapSampler');
-    prg.relNormalMapSampler            = glContext.getUniformLocation(prg, 'uRelNormalMapSampler');
+    //prg.heightMapSampler            = glContext.getUniformLocation(prg, 'uHeightMapSampler');
+    //prg.diffuseMapSampler            = glContext.getUniformLocation(prg, 'uDiffuseMapSampler');
+    //prg.relNormalMapSampler            = glContext.getUniformLocation(prg, 'uRelNormalMapSampler');
     //prg.depthMapSampler            = glContext.getUniformLocation(prg, 'uDepthMapSampler');
 
 

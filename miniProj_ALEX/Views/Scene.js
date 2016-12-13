@@ -64,10 +64,10 @@ function Scene_drawScene(deltaTime) {
 
 	var allPRGSamplerLocations = [
 		prg.ambientMapSampler,
-		prg.diffuseMapSampler,
-		prg.normalMapSampler,
-		prg.heightMapSampler,
-		prg.relNormalMapSampler
+		prg.normalMapSampler
+		//prg.heightMapSampler,
+		//prg.diffuseMapSampler,
+		//prg.relNormalMapSampler
 	];
 
 	//Sampling the render of the first pass and update space
