@@ -34,7 +34,7 @@ function MouseHandling_handleMouseMove(event) {
     }
 }
 
-function MouseHanlding_handleMouseDown() {
+function MouseHandling_handleMouseDown() {
     dragging = true;
     oldMousePos.x = oldMousePos.y = 0;
 }

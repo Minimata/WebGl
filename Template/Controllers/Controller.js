@@ -36,7 +36,7 @@ function m_initDrawables() {
 }
 
 function m_initEventHandling() {
-    myCanvas.on("mousedown", MouseHanlding_handleMouseDown);
+    myCanvas.on("mousedown", MouseHandling_handleMouseDown);
     $(window).on("mouseup",  MouseHandling_handleMouseUp);
     $(window).on('mousemove',  MouseHandling_handleMouseMove);
 }
