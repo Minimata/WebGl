@@ -12,6 +12,7 @@ class QuadInterface extends DrawableInterface {
         quad.vertices.push(quad.v2[0]*quad.width / 2, quad.v2[1]*quad.height / 2, quad.v2[2]*quad.depth / 2);
         quad.vertices.push(quad.v3[0]*quad.width / 2, quad.v3[1]*quad.height / 2, quad.v3[2]*quad.depth / 2);
         quad.vertices.push(quad.v4[0]*quad.width / 2, quad.v4[1]*quad.height / 2, quad.v4[2]*quad.depth / 2);
+
         for(var i = 0; i < quad.vertices.length / 3; i++) {
             quad.colors.push(quad.r, quad.g, quad.b, 1);
         }
