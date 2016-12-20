@@ -11,9 +11,9 @@ class DrawableInterface {
 
     update(drawable, fullTime, deltaTime) {
         if(!drawable) throw ReferenceError("Null Drawable cannot be updated");
-        //drawable.vertices = [];
-        //drawable.colors = [];
-        //drawable.indices = [];
+        drawable.vertices = [];
+        drawable.colors = [];
+        drawable.indices = [];
 
         this.fillArrays(drawable, fullTime, deltaTime);
 
