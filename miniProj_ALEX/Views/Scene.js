@@ -29,12 +29,6 @@ function Scene_drawScene(deltaTime) {
 	//Sending data to shaders
 	glContext.uniform1f(preprocessPrg.uDeltaTime, deltaTime);
 	glContext.uniform1f(preprocessPrg.uFullTime, fullTimeSeconds);
-	//Sending datas do shaders. Camera pos must be scaled between the 2 shader spaces
-	//TEMPORARY SOLUTION THESE UGLY FACTORS
-	glContext.uniform3f(preprocessPrg.uCameraPosition,
-		1.33*mainCamera.pos[0] * renderFrameSize / quadSize,
-		0.83*mainCamera.pos[1] * renderFrameSize / quadSize,
-		-mainCamera.pos[2]);
 
 	//Rendering the preprocessed shaders
 	glContext.viewport(0, 0, oceanTileSize, oceanTileSize);
@@ -46,7 +40,7 @@ function Scene_drawScene(deltaTime) {
 
 	var toDraw = Controller_getPreprocDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
-		updater.update(toDraw[i], fullTimeSeconds, deltaTime);
+		updater.update(toDraw[i]);
 		toDraw[i].draw(absoluteMatrix, preprocessPrg);
 	}
 
@@ -79,7 +73,7 @@ function Scene_drawScene(deltaTime) {
 
 	toDraw = Controller_getDrawables();
 	for(i = 0; i < toDraw.length; i++) {
-		updater.update(toDraw[i], fullTimeSeconds, deltaTime);
+		updater.update(toDraw[i]);
 		toDraw[i].draw(absoluteMatrix, prg);
 	}
 }
