@@ -199,24 +199,27 @@ void main(void) {
 
     //Gerstner displaced waves
     float ampFactor = 1.0; //between 0.0 and 2.0
-    float steepFactor = 1.0; // between 0.0 and 1.0
+    float steepFactor = 0.7; // between 0.0 and 1.0
 	float speedFactor = 1.0; //whatever
 	float heightFactor = 1.0; //whatever
 	float frequencyFactor = 200.0; //whatever
 
-#define NUM_GERS_WAVES 11
+#define NUM_GERS_WAVES 14
     GerstnerWave allGersWaves[NUM_GERS_WAVES];
     allGersWaves[0] = GerstnerWave(vec2(-1, 1), ampFactor, 0.5*steepFactor, speedFactor, heightFactor, frequencyFactor);
     allGersWaves[1] = GerstnerWave(vec2(1, 1), 1.2*ampFactor, 0.7*steepFactor, 0.7*speedFactor, 1.2*heightFactor, 0.4*frequencyFactor);
     allGersWaves[2] = GerstnerWave(vec2(0.5, 1), 0.5*ampFactor, 0.5*steepFactor, 0.7*speedFactor, 1.5*heightFactor, 1.2*frequencyFactor);
     allGersWaves[3] = GerstnerWave(vec2(-2, 1), 1.2*ampFactor, 0.7*steepFactor, 0.1*speedFactor, 1.0*heightFactor, 0.7*frequencyFactor);
     allGersWaves[4] = GerstnerWave(vec2(5, 1), 1.5*ampFactor, 0.3*steepFactor, 0.5*speedFactor, 1.0*heightFactor, 1.5*frequencyFactor);
-    allGersWaves[5] = GerstnerWave(vec2(-1, -3), 0.1*ampFactor, 0.8*steepFactor, 2.5*speedFactor, 0.2*heightFactor, 2.9*frequencyFactor);
-    allGersWaves[6] = GerstnerWave(vec2(1, -2), 0.15*ampFactor, 0.7*steepFactor, 2.0*speedFactor, 0.2*heightFactor, 3.2*frequencyFactor);
-    allGersWaves[7] = GerstnerWave(vec2(1, 10), 0.1*ampFactor, 1.0*steepFactor, 2.7*speedFactor, 0.15*heightFactor, 3.5*frequencyFactor);
-    allGersWaves[8] = GerstnerWave(vec2(2, 8), 0.2*ampFactor, 0.3*steepFactor, 2.3*speedFactor, 0.3*heightFactor, 3.0*frequencyFactor);
-    allGersWaves[9] = GerstnerWave(vec2(0.2, -3), 1.5*ampFactor, 0.2*steepFactor, 0.2*speedFactor, 1.0*heightFactor, 0.5*frequencyFactor);
-    allGersWaves[10] = GerstnerWave(vec2(-7, 4), 1.3*ampFactor, 0.3*steepFactor, 0.4*speedFactor, 0.8*heightFactor, 1.1*frequencyFactor);
+    allGersWaves[5] = GerstnerWave(vec2(-1, -3), 0.1*ampFactor, 0.8*steepFactor, 2.5*speedFactor, 0.2*heightFactor, 2.0*frequencyFactor);
+    allGersWaves[6] = GerstnerWave(vec2(1, -2), 0.15*ampFactor, 0.7*steepFactor, 2.0*speedFactor, 0.2*heightFactor, 2.5*frequencyFactor);
+    allGersWaves[7] = GerstnerWave(vec2(1, 10), 0.1*ampFactor, 1.0*steepFactor, 2.7*speedFactor, 0.15*heightFactor, 2.7*frequencyFactor);
+    allGersWaves[8] = GerstnerWave(vec2(-1, -1), 0.2*ampFactor, 0.3*steepFactor, 2.3*speedFactor, 0.3*heightFactor, 1.9*frequencyFactor);
+    allGersWaves[9] = GerstnerWave(vec2(2, 8), 0.17*ampFactor, 0.1*steepFactor, 4.0*speedFactor, 0.4*heightFactor, 1.7*frequencyFactor);
+    allGersWaves[10] = GerstnerWave(vec2(0.2, -3), 1.5*ampFactor, 0.2*steepFactor, 0.2*speedFactor, 1.0*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[11] = GerstnerWave(vec2(-7, 4), 1.3*ampFactor, 0.3*steepFactor, 0.4*speedFactor, 0.8*heightFactor, 1.1*frequencyFactor);
+    allGersWaves[12] = GerstnerWave(vec2(-3, -4), 0.8*ampFactor, 0.7*steepFactor, 0.8*speedFactor, 1.4*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[13] = GerstnerWave(vec2(1, -3), 0.1*ampFactor, 0.1*steepFactor, 1.3*speedFactor, 1.3*heightFactor, 0.2*frequencyFactor);
     float maxWaveHeight = 1.5*heightFactor;
 
     vec3 tmpPos = vec3(0.0);
@@ -304,14 +307,15 @@ void main(void) {
     precision highp float;
 #endif
 
-#define ITERATIONS_PARALLAX 10
-#define PRECISION 100.0
+#define ITERATIONS_PARALLAX 20
 
 #define DEPTH_OF_VIEW 0.5
 #define CAMERA_TO_TEXTURE_SPACE 32.0
 
 #define WAVE_AMPLITUDE 0.5
+#define PARALLAX_AMPLITUDE 0.5
 #define WATER_REFRACTION_FACTOR 1.33
+#define REFRACTION_FACTOR 1.1
 
 #define PI 3.14159265358979323846264338327950288419716939937510
 
@@ -346,32 +350,19 @@ void main(void) {
     float height = WAVE_AMPLITUDE * ambientColor.a;
     vec3 camPos = cameraSpacePosition / CAMERA_TO_TEXTURE_SPACE;
     vec3 pointToCam = vec3(vec2(camPos.xy - 2.0 * vec2(point.x - 0.5, point.y - 0.5)), (camPos.z - height));
+    vec3 PTC = normalize(pointToCam);
+    vec2 PTCProj = PTC.xy;
 
-    //PARALLAX MAPPING
-//    vec3 PTC = normalize(pointToCam);
-//    vec3 delta = PTC / PRECISION;
-//    PTC /= PRECISION;
-//    vec2 PTCProj = pointToCam.xy;
-//    for(int i = 0; i < int(PRECISION); i++){
-//        PTC += delta;
-//        if(pointToCam.z < WAVE_AMPLITUDE * texture2D(uAmbientMapSampler, point + PTCProj).a){
-//            PTCProj = PTC.xy;
-//        }
-//    }
+    for(int i = 0; i < ITERATIONS_PARALLAX; i++) {
+        PTC += PTC * (PARALLAX_AMPLITUDE * WAVE_AMPLITUDE * texture2D(uAmbientMapSampler, point + PTCProj).a - PTC.z);
+        PTCProj = PTC.xy;
+    }
 
-//    vec3 PTC = /*normalize*/(pointToCam);
-//    vec2 PTCProj = PTC.xy;
-//    for(int i = 0; i < ITERATIONS_PARALLAX; i++) {
-//        PTC += PTC * (WAVE_AMPLITUDE * texture2D(uAmbientMapSampler, point + PTCProj).a - PTC.z);
-//        PTCProj = PTC.xy;
-//    }
-
-//    point += PTCProj;
+    point += PTCProj;
 
 
     ambientColor = texture2D(uAmbientMapSampler, point);
     vec4 normalColor = texture2D(uNormalMapSampler, point);
-
 
     //Getting back heightMap
     height = WAVE_AMPLITUDE * ambientColor.a;
@@ -390,7 +381,7 @@ void main(void) {
     float thetaN = angleWithGround(normal);
     float thetaP = angleWithGround(pointToCam);
     float theta = abs(thetaN - thetaP);
-    float thetaRefracted = asin(1.0 / WATER_REFRACTION_FACTOR * sin(theta));
+    float thetaRefracted = asin(1.0 / (REFRACTION_FACTOR*WATER_REFRACTION_FACTOR) * sin(theta));
     vec4 thetaColor = vec4(vec3(theta / PI), 1.0);
 
     //fresnel equations
