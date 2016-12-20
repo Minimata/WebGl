@@ -17,7 +17,7 @@ function Scene_initScene() {
 	mat4.perspective(pMatrix, GLTools_degToRad(45), c_width / c_height, 0.1, 10000);
 	glContext.uniformMatrix4fv(prg.pMatrixUniform, false, pMatrix);
 
-	var updater = new QuadInterface();
+	var updater = new SphereInterface();
 	var toDraw = Controller_getDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
 		updater.create(toDraw[i]);
@@ -41,7 +41,7 @@ function Scene_updateScene(deltaTime) {
 	glContext.uniform1f(prg.uDeltaTime, deltaTime);
 	glContext.uniform1f(prg.uFullTime, fullTimeSeconds);
 
-	var updater = new QuadInterface();
+	var updater = new SphereInterface();
 	var toDraw = Controller_getDrawables();
 	for(var i = 0; i < toDraw.length; i++) {
 		//updater.create(toDraw[i]); //If need update on vertices
