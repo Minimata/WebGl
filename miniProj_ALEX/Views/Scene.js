@@ -14,6 +14,16 @@ function Scene_initScene() {
 	glContext.viewport(0, 0, c_width, c_height);
 	glContext.enable(glContext.DEPTH_TEST);
 	glContext.clearColor(0.0, 0.0, 0.0, 1.0);
+
+	var toDraw = Controller_getPreprocDrawables();
+	var updater = new QuadInterface();
+	for(var i = 0; i < toDraw.length; i++) {
+		updater.init(toDraw[i]);
+	}
+	toDraw = Controller_getDrawables();
+	for(i = 0; i < toDraw.length; i++) {
+		updater.init(toDraw[i]);
+	}
 }
 
 function Scene_drawScene(deltaTime) {

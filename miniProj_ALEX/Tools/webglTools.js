@@ -114,7 +114,8 @@ function GLTools_initShader(id, glContext) {
 /**
  * The following code snippet creates a vertex buffer and binds the vertices to it.
  */
-function getVertexBufferWithVertices(vertices) {
+function
+getVertexBufferWithVertices(vertices) {
     var vBuffer = glContext.createBuffer();
     glContext.bindBuffer(glContext.ARRAY_BUFFER, vBuffer);
     glContext.bufferData(glContext.ARRAY_BUFFER, new Float32Array(vertices), glContext.STATIC_DRAW);

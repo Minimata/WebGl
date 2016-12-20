@@ -18,10 +18,9 @@ function Controller_getDrawables() {return allDrawables}
 $(function () {
     try {
         m_initProgram();
+        m_initDrawables();
         Scene_initScene();
         m_initEventHandling();
-
-        m_initDrawables();
 
         GLTools_logicLoop();
         GLTools_renderLoop();

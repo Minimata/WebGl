@@ -41,11 +41,11 @@ function Controller_getPreprocDrawables() {return preprocDrawables}
 $(function () {
     try {
         m_initProgram();
+        m_initDrawables();
         Scene_initScene();
         m_initEventHandling();
-        m_initFrameBuffers();
 
-        m_initDrawables();
+        m_initFrameBuffers();
 
         //GLTools_logicLoop();
         GLTools_renderLoop();
