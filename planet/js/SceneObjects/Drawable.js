@@ -120,12 +120,12 @@ class Drawable extends BaseObject{
         return vec3.fromValues(this._x, this._y, this._z);
     }
 
-    draw(render, mvMatrix, parent) {
+    draw(render, parent, mvMatrix) {
         if(!render) throw ReferenceError("No rendering method defined");
         if(!this.renderingMethods[render]) throw ReferenceError("No matching rendering method to " + render);
 
-        mat4.multiply(mvMatrix, parent, this._mvMatrix);
-        glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, mvMatrix);
+        mat4.multiply(parent, mvMatrix, this._mvMatrix);
+        glContext.uniformMatrix4fv(prg.mvMatrixUniform, false, parent);
 
         glContext.bindBuffer(glContext.ARRAY_BUFFER, this._vertexBuffer);
         glContext.vertexAttribPointer(prg.vertexPositionAttribute, 3, glContext.FLOAT, false, 0, 0);
@@ -137,7 +137,7 @@ class Drawable extends BaseObject{
 
         if(this._children) {
             $.each(this._children, function(name, value) {
-                value.draw(render, mvMatrix, mvMatrix);
+                value.draw(render, parent, parent);
             });
         }
     }

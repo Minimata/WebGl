@@ -137,26 +137,30 @@ struct Surface {
 };
 
 
+
+
 Surface gerstnerWave(vec3 inputVector, GerstnerWave wave) {
 
-    vec2 wavenumber = 0.4435*wave.steepness*normalize(wave.direction);
+    vec2 dir = normalize(wave.direction);
+    vec2 wavenumber = 0.4435*wave.steepness*dir;
 
-    float km = sqrt(pow(wavenumber.x, 2.0) + pow(wavenumber.y, 2.0));
-    float wm = G*km*tanh(km*DEPTH);
+    float km = (sqrt(pow(wavenumber.x, 2.0) + pow(wavenumber.y, 2.0)));
+    float wm = sqrt(G*km/**tanh(km*DEPTH)*/);
     float theta = wave.frequency*(wavenumber.x*inputVector.x + wavenumber.y*inputVector.y) - wave.speed*wm*uFullTime;
 
     vec3 newVector = inputVector;
-    newVector.x = (wavenumber.x * wave.amplitude * sin(theta)) / (km*tanh(km * DEPTH));
-    newVector.y = (wavenumber.y * wave.amplitude * sin(theta)) / (km* tanh(km * DEPTH));
+    newVector.x = (wavenumber.x * wave.amplitude * sin(theta))/* / (km*tanh(km * DEPTH))*/;
+    newVector.y = (wavenumber.y * wave.amplitude * sin(theta))/* / (km* tanh(km * DEPTH))*/;
     newVector.z = wave.amplitude * cos(theta);
     newVector.z = (newVector.z + wave.amplitude) / 2.0;
 
-    vec3 norm1 = vec3(  (pow(wavenumber.x, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
-                        (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
+
+    vec3 norm1 = vec3(  (pow(wavenumber.x, 2.0) * wave.amplitude * cos(theta))/* / (km* tanh(km*DEPTH))*/,
+                        (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta))/* / (km* tanh(km * DEPTH))*/,
                         (wavenumber.x * wave.amplitude * sin(theta)));
 
-    vec3 norm2 = vec3(  (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta)) / (km* tanh(km*DEPTH)),
-                        (pow(wavenumber.y, 2.0) * wave.amplitude * cos(theta)) / (km* tanh(km * DEPTH)),
+    vec3 norm2 = vec3(  (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta))/* / (km* tanh(km*DEPTH))*/,
+                        (pow(wavenumber.y, 2.0) * wave.amplitude * cos(theta))/* / (km* tanh(km * DEPTH))*/,
                         (wavenumber.y * wave.amplitude * sin(theta)));
 
     return Surface(newVector, norm1, norm2);
@@ -176,16 +180,16 @@ void main(void) {
     float commonOffsetFactor = 1.0;
     float commonSpeedFactor = 0.5;
     float commonStretchFactor = 0.01;
-    float commomCenterFactor = 100.0;
+    float commonCenterFactor = 100.0;
 
     Wave allWaves[NUM_WAVES];
-    allWaves[0] = Wave(vVertexPos.xy, commomCenterFactor * vec2(4.0, 7.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 5.0, commonAmplitudeFactor * 0.6, commonSpeedFactor * 100.0);
-    allWaves[1] = Wave(vVertexPos.xy, commomCenterFactor * vec2(4.0, 3.0), commonStretchFactor*vec2(0.005, 0.01), vColor[0], commonFrequencyFactor * 7.0, commonAmplitudeFactor * 0.5, commonSpeedFactor * 150.0);
-    allWaves[2] = Wave(vVertexPos.xy, commomCenterFactor * vec2(-5.0, 0.0), commonStretchFactor*vec2(0.005, 0.05), vColor[0], commonFrequencyFactor * 6.0, commonAmplitudeFactor * 0.3, commonSpeedFactor * 70.0);
-    allWaves[3] = Wave(vVertexPos.xy, commomCenterFactor * vec2(-5.0, -5.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
-    allWaves[4] = Wave(vVertexPos.xy, commomCenterFactor * vec2(-2.0, 7.0), commonStretchFactor*vec2(0.02, 0.02), vColor[0], commonFrequencyFactor * 8.0, commonAmplitudeFactor * 0.15, commonSpeedFactor * 0.0);
-    allWaves[5] = Wave(vVertexPos.xy, commomCenterFactor * vec2(-5.0, 4.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
-    allWaves[6] = Wave(vVertexPos.xy, commomCenterFactor * vec2(0.0, 0.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 1.0, commonAmplitudeFactor * 0.2, commonSpeedFactor * 30.0);
+    allWaves[0] = Wave(vVertexPos.xy, commonCenterFactor * vec2(4.0, 7.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 5.0, commonAmplitudeFactor * 0.6, commonSpeedFactor * 100.0);
+    allWaves[1] = Wave(vVertexPos.xy, commonCenterFactor * vec2(4.0, 3.0), commonStretchFactor*vec2(0.005, 0.01), vColor[0], commonFrequencyFactor * 7.0, commonAmplitudeFactor * 0.5, commonSpeedFactor * 150.0);
+    allWaves[2] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, 0.0), commonStretchFactor*vec2(0.005, 0.05), vColor[0], commonFrequencyFactor * 6.0, commonAmplitudeFactor * 0.3, commonSpeedFactor * 70.0);
+    allWaves[3] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, -5.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
+    allWaves[4] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-2.0, 7.0), commonStretchFactor*vec2(0.02, 0.02), vColor[0], commonFrequencyFactor * 8.0, commonAmplitudeFactor * 0.15, commonSpeedFactor * 0.0);
+    allWaves[5] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, 4.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
+    allWaves[6] = Wave(vVertexPos.xy, commonCenterFactor * vec2(0.0, 0.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 1.0, commonAmplitudeFactor * 0.2, commonSpeedFactor * 30.0);
 
     for(int i = 1; i < 3; i++) {
         valueAtI = 0.0;
@@ -199,28 +203,31 @@ void main(void) {
 
     //Gerstner displaced waves
     float ampFactor = 1.0; //between 0.0 and 2.0
-    float steepFactor = 0.7; // between 0.0 and 1.0
-	float speedFactor = 1.0; //whatever
+    float steepFactor = 0.8; // between 0.0 and 1.0
+	float speedFactor = 2.0; //whatever
 	float heightFactor = 1.0; //whatever
-	float frequencyFactor = 200.0; //whatever
+	float frequencyFactor = 150.0; //whatever
 
-#define NUM_GERS_WAVES 14
+#define NUM_GERS_WAVES 17
     GerstnerWave allGersWaves[NUM_GERS_WAVES];
     allGersWaves[0] = GerstnerWave(vec2(-1, 1), ampFactor, 0.5*steepFactor, speedFactor, heightFactor, frequencyFactor);
     allGersWaves[1] = GerstnerWave(vec2(1, 1), 1.2*ampFactor, 0.7*steepFactor, 0.7*speedFactor, 1.2*heightFactor, 0.4*frequencyFactor);
     allGersWaves[2] = GerstnerWave(vec2(0.5, 1), 0.5*ampFactor, 0.5*steepFactor, 0.7*speedFactor, 1.5*heightFactor, 1.2*frequencyFactor);
     allGersWaves[3] = GerstnerWave(vec2(-2, 1), 1.2*ampFactor, 0.7*steepFactor, 0.1*speedFactor, 1.0*heightFactor, 0.7*frequencyFactor);
-    allGersWaves[4] = GerstnerWave(vec2(5, 1), 1.5*ampFactor, 0.3*steepFactor, 0.5*speedFactor, 1.0*heightFactor, 1.5*frequencyFactor);
-    allGersWaves[5] = GerstnerWave(vec2(-1, -3), 0.1*ampFactor, 0.8*steepFactor, 2.5*speedFactor, 0.2*heightFactor, 2.0*frequencyFactor);
-    allGersWaves[6] = GerstnerWave(vec2(1, -2), 0.15*ampFactor, 0.7*steepFactor, 2.0*speedFactor, 0.2*heightFactor, 2.5*frequencyFactor);
-    allGersWaves[7] = GerstnerWave(vec2(1, 10), 0.1*ampFactor, 1.0*steepFactor, 2.7*speedFactor, 0.15*heightFactor, 2.7*frequencyFactor);
-    allGersWaves[8] = GerstnerWave(vec2(-1, -1), 0.2*ampFactor, 0.3*steepFactor, 2.3*speedFactor, 0.3*heightFactor, 1.9*frequencyFactor);
-    allGersWaves[9] = GerstnerWave(vec2(2, 8), 0.17*ampFactor, 0.1*steepFactor, 4.0*speedFactor, 0.4*heightFactor, 1.7*frequencyFactor);
+    allGersWaves[4] = GerstnerWave(vec2(5, 1), 1.5*ampFactor, 0.3*steepFactor, 0.5*speedFactor, 0.2*heightFactor, 1.5*frequencyFactor);
+    allGersWaves[5] = GerstnerWave(vec2(-1, -3), 0.1*ampFactor, 0.8*steepFactor, 2.5*speedFactor, 0.1*heightFactor, 2.0*frequencyFactor);
+    allGersWaves[6] = GerstnerWave(vec2(1, -2), 0.15*ampFactor, 0.7*steepFactor, 2.0*speedFactor, 0.1*heightFactor, 2.5*frequencyFactor);
+    allGersWaves[7] = GerstnerWave(vec2(1, 10), 0.1*ampFactor, 1.0*steepFactor, 2.7*speedFactor, 0.1*heightFactor, 2.7*frequencyFactor);
+    allGersWaves[8] = GerstnerWave(vec2(-1, -1), 0.2*ampFactor, 0.3*steepFactor, 2.3*speedFactor, 0.2*heightFactor, 1.9*frequencyFactor);
+    allGersWaves[9] = GerstnerWave(vec2(2, 8), 0.17*ampFactor, 0.1*steepFactor, 4.0*speedFactor, 0.25*heightFactor, 1.7*frequencyFactor);
     allGersWaves[10] = GerstnerWave(vec2(0.2, -3), 1.5*ampFactor, 0.2*steepFactor, 0.2*speedFactor, 1.0*heightFactor, 0.5*frequencyFactor);
     allGersWaves[11] = GerstnerWave(vec2(-7, 4), 1.3*ampFactor, 0.3*steepFactor, 0.4*speedFactor, 0.8*heightFactor, 1.1*frequencyFactor);
     allGersWaves[12] = GerstnerWave(vec2(-3, -4), 0.8*ampFactor, 0.7*steepFactor, 0.8*speedFactor, 1.4*heightFactor, 0.5*frequencyFactor);
     allGersWaves[13] = GerstnerWave(vec2(1, -3), 0.1*ampFactor, 0.1*steepFactor, 1.3*speedFactor, 1.3*heightFactor, 0.2*frequencyFactor);
-    float maxWaveHeight = 1.5*heightFactor;
+    allGersWaves[14] = GerstnerWave(vec2(-10, 14), 0.7*ampFactor, 0.1*steepFactor, 0.6*speedFactor, 1.7*heightFactor, 0.3*frequencyFactor);
+    allGersWaves[15] = GerstnerWave(vec2(10, 1), 1.2*ampFactor, 0.5*steepFactor, 0.9*speedFactor, 1.2*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[16] = GerstnerWave(vec2(0, -1), 1.2*ampFactor, 0.8*steepFactor, 0.5*speedFactor, 2.0*heightFactor, 0.1*frequencyFactor);
+    float maxWaveHeight = 2.0*heightFactor;
 
     vec3 tmpPos = vec3(0.0);
     vec3 tmpNorm1 = vec3(0.0);
@@ -241,25 +248,12 @@ void main(void) {
     vec3 normal2 = vec3(-tmpNorm2.x, 1.0 - tmpNorm2.y, -tmpNorm2.z);
     vec3 normal = -normalize(cross(normal2, normal1));
 
-    //Creating depth map
-//    vec3 absPos = vVertexPos + tmpPos;
-//    vec3 pointToCam = absPos - uCameraPosition;
-//    float depth = (-1.0 / uDepthOfView)*length(pointToCam) + 1.0;
-
-//    vec3 tmpMap = normalize(pointToCam);
-
     vec4 ambientMap = color;
     ambientMap.a = tmpPos.z; //heightMap in ambiantColor
-//    vec4 diffuseMap = vec4(color.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
 	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
-//	vec4 heightMap = vec4(vec3(tmpPos.z), 1.0);
-
-//    vec4 relativeNormalMap = normalize(vec4(vec3(tmpMap.x + 0.5, tmpMap.y + 0.5, tmpMap.z), 1.0));
-//	vec4 depthMap = vec4(vec3(depth), 1.0);
 
     gl_FragData[0] = ambientMap;
     gl_FragData[1] = normalMap;
-//    gl_FragData[2] = heightMap;
 }
     </script>
 
@@ -313,7 +307,7 @@ void main(void) {
 #define CAMERA_TO_TEXTURE_SPACE 32.0
 
 #define WAVE_AMPLITUDE 0.5
-#define PARALLAX_AMPLITUDE 0.5
+#define PARALLAX_AMPLITUDE 0.4
 #define WATER_REFRACTION_FACTOR 1.33
 #define REFRACTION_FACTOR 1.1
 
@@ -333,7 +327,7 @@ varying vec2 vTextureCoord;
 varying vec3 cameraSpacePosition;
 
 //Render attributes
-vec3 uDirectionalLight = normalize(vec3(1.0, 1.0, 3.0));
+vec3 uDirectionalLight = normalize(vec3(1.0, 1.0, 1.0));
 float uDepthOfView = 100.0;
 
 float angleWithGround(vec3 vector) {
@@ -350,6 +344,8 @@ void main(void) {
     float height = WAVE_AMPLITUDE * ambientColor.a;
     vec3 camPos = cameraSpacePosition / CAMERA_TO_TEXTURE_SPACE;
     vec3 pointToCam = vec3(vec2(camPos.xy - 2.0 * vec2(point.x - 0.5, point.y - 0.5)), (camPos.z - height));
+
+    //PARALLAX
     vec3 PTC = normalize(pointToCam);
     vec2 PTCProj = PTC.xy;
 
@@ -357,7 +353,6 @@ void main(void) {
         PTC += PTC * (PARALLAX_AMPLITUDE * WAVE_AMPLITUDE * texture2D(uAmbientMapSampler, point + PTCProj).a - PTC.z);
         PTCProj = PTC.xy;
     }
-
     point += PTCProj;
 
 
@@ -370,7 +365,14 @@ void main(void) {
 
     //Calculating diffuseMap based on normals
     vec3 normal = vec3(normalColor.x - 0.5, normalColor.y - 0.5, normalColor.z);
-    vec4 diffuseColor = vec4(ambientColor.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+    vec3 antiLight = vec3(  uDirectionalLight.x * uDirectionalLight.z,
+                            uDirectionalLight.y * uDirectionalLight.z,
+                            sqrt(pow(uDirectionalLight.x, 2.0) + pow(uDirectionalLight.y, 2.0)));
+    vec4 diffuseColor1 = vec4(ambientColor.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+    vec4 diffuseColor2 = vec4(ambientColor.xyz*dot(normal, antiLight) / (length(normal) * length(antiLight)), 1.0);
+    float factor1 = 1.0;
+    float factor2 = 1.0;
+    vec4 diffuseColor = (factor1 * diffuseColor1 + factor2 * diffuseColor2) / (factor1 + factor2);
 
     //Calculating depthmap
 //    vec4 PTCColor = vec4(normalize(pointToCam), 1.0);

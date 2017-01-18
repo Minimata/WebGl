@@ -43,12 +43,12 @@ function Scene_drawScene(deltaTime) {
 	//Rendering the preprocessed shaders
 	glContext.viewport(0, 0, oceanTileSize, oceanTileSize);
 	glContext.clear(glContext.COLOR_BUFFER_BIT | glContext.DEPTH_BUFFER_BIT);
-	absoluteMatrix = mat4.create();
-	mat4.ortho(absoluteMatrix, -renderFrameSize, renderFrameSize, -renderFrameSize, renderFrameSize,
+	mat4.ortho(pMatrix, -renderFrameSize, renderFrameSize, -renderFrameSize, renderFrameSize,
 	0, 1000);
 	glContext.uniformMatrix4fv(preprocessPrg.pMatrix, false, pMatrix);
 
 	var toDraw = Controller_getPreprocDrawables();
+	absoluteMatrix = mat4.create();
 	for(var i = 0; i < toDraw.length; i++) {
 		updater.update(toDraw[i]);
 		toDraw[i].draw(absoluteMatrix, preprocessPrg);
