@@ -8,6 +8,8 @@
     <script src="Tools/debug/webgl-debug.js"></script>
     <script src="Tools/webglTools.js"></script>
     <script src="Tools/Camera.js"></script>
+    <script src="Tools/skybox-loader.js"></script>
+    <script src="Tools/skybox.js"></script>
 
     <script src="InputHandling/KeyboardHandling.js"></script>
     <script src="InputHandling/mouseMotionHandling.js"></script>
@@ -307,7 +309,7 @@ void main(void) {
 #define CAMERA_TO_TEXTURE_SPACE 32.0
 
 #define WAVE_AMPLITUDE 0.5
-#define PARALLAX_AMPLITUDE 0.4
+#define PARALLAX_AMPLITUDE 0.8
 #define WATER_REFRACTION_FACTOR 1.33
 #define REFRACTION_FACTOR 1.1
 
@@ -396,6 +398,33 @@ void main(void) {
     gl_FragColor = reflectiveColor;
 }
     </script>
+
+    <!-- vertex shader for skybox -->
+    <script type="x-shader/x-vertex" id="shader-vs-skybox">
+			 uniform mat4 uPMatrix;
+			 uniform mat4 uMVMatrix;
+			 attribute vec3 aCoords;
+			 varying vec3 vCoords;
+			 void main() {
+				vec4 eyeCoords = uMVMatrix * vec4(aCoords,1.0);
+				vCoords = aCoords;
+				gl_Position = uPMatrix * eyeCoords;
+
+			 }
+		</script>
+
+    <!-- fragment shader fox skybox -->
+    <script type="x-shader/x-fragment" id="shader-fs-skybox">
+			 precision mediump float;
+			 varying vec3 vCoords;
+			 uniform samplerCube uSkybox1;
+			 uniform samplerCube uSkybox2;
+			 void main() {
+				  vec4 color1 = textureCube(uSkybox1, vCoords);
+				  vec4 color2 = textureCube(uSkybox2, vCoords);
+				  gl_FragColor = color2;
+			 }
+		</script>
 </head>
 <body>
 

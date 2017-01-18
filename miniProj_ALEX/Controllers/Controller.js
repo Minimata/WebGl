@@ -24,6 +24,9 @@ var fbo = [];
 var mainFBO;
 var prg = null;
 var preprocessPrg = null;
+var progSkybox = null;
+var skybox;
+var ptr = new Object();
 var NUMBER_TEXTURES = 2;
 var ext;
 
@@ -163,14 +166,76 @@ function m_initProgram() {
 
     if (!glContext.getProgramParameter(prg, glContext.LINK_STATUS)) throw("Error m_initProgram - couldn't initialize shaders");
 
+    //Selection of the 2 shader texts for the skybox
+    var vertexShaderSkybox = getTextContent("shader-vs-skybox");
+    var fragmentShaderSkybox = getTextContent("shader-fs-skybox");
+    //Create the program for the shader
+    progSkybox = createProgram(glContext,vertexShaderSkybox,fragmentShaderSkybox);
+
     m_initShaderParameters(prg, preprocessPrg);
     glContext.useProgram(preprocessPrg);
+}
+
+function createProgram(gl, vertexShaderSource, fragmentShaderSource) {
+    var vsh = gl.createShader( gl.VERTEX_SHADER );
+    gl.shaderSource(vsh,vertexShaderSource);
+    gl.compileShader(vsh);
+    if ( ! gl.getShaderParameter(vsh, gl.COMPILE_STATUS) ) {
+        console.log("Error in vertex shader:  " + gl.getShaderInfoLog(vsh));
+    }
+    var fsh = gl.createShader( gl.FRAGMENT_SHADER );
+    gl.shaderSource(fsh, fragmentShaderSource);
+    gl.compileShader(fsh);
+    if ( ! gl.getShaderParameter(fsh, gl.COMPILE_STATUS) ) {
+        console.log("Error in fragment shader:  " + gl.getShaderInfoLog(fsh));
+    }
+    var prog = gl.createProgram();
+    gl.attachShader(prog,vsh);
+    gl.attachShader(prog, fsh);
+    gl.linkProgram(prog);
+    if ( ! gl.getProgramParameter( prog, gl.LINK_STATUS) ) {
+        console.log("Link error in program:  " + gl.getProgramInfoLog(prog));
+    }
+    return prog;
+}
+
+function getTextContent( elementID ) {
+    var element = document.getElementById(elementID);
+    var fsource = "";
+    var node = element.firstChild;
+    var str = "";
+    while (node) {
+        if (node.nodeType == 3) // this is a text node
+            str += node.textContent;
+        node = node.nextSibling;
+    }
+    return str;
 }
 
 /**
  * Initialisation of the shader parameters, this very important method creates the link between the javascript and the shader.
  */
 function m_initShaderParameters(prg, preprocessPrg) {
+
+    /*******************************************
+     * Inits the pointers for the skybox rendering
+     *******************************************/
+
+        //Linking the attribute for the cube map coords
+    glContext.useProgram(progSkybox);
+    ptr.sbCoordsAttribute = glContext.getAttribLocation(progSkybox, "aCoords");
+    glContext.enableVertexAttribArray(ptr.sbCoordsAttribute);
+
+    //Linking the uniform model view matrix for the skybox shader
+    ptr.sbMVMatrixUniform = glContext.getUniformLocation(progSkybox, "uMVMatrix");
+    //Linking the uniform projection matrix for the skybox shader
+    ptr.sbPMatrixUniform = glContext.getUniformLocation(progSkybox, "uPMatrix");
+    //Linking the uniform texture location for the first skybox
+    ptr.cubeTextureUniform1 = glContext.getUniformLocation(progSkybox, "uSkybox1");
+    //Linking the uniform texture location for the second skybox
+    ptr.cubeTextureUniform2 = glContext.getUniformLocation(progSkybox, "uSkybox2");
+
+
     glContext.useProgram(prg);
     prg.vertexPositionAttribute = glContext.getAttribLocation(prg, "aVertexPosition");
     glContext.enableVertexAttribArray(prg.vertexPositionAttribute);

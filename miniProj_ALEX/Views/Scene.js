@@ -7,6 +7,30 @@ var pMatrix = mat4.create();
 var fullTimeMilliseconds;
 var absoluteMatrix;
 
+function initSkyboxesReferences()
+{
+	var skyboxes = [];
+
+	skyboxes[0] = [];
+	skyboxes[0].push("Ressources/skybox0/posx.jpg");
+	skyboxes[0].push("Ressources/skybox0/negx.jpg");
+	skyboxes[0].push("Ressources/skybox0/posy.jpg");
+	skyboxes[0].push("Ressources/skybox0/negy.jpg");
+	skyboxes[0].push("Ressources/skybox0/posz.jpg");
+	skyboxes[0].push("Ressources/skybox0/negz.jpg");
+
+
+	skyboxes[1] = [];
+	skyboxes[1].push("Ressources/skybox1/posx.png");
+	skyboxes[1].push("Ressources/skybox1/negx.png");
+	skyboxes[1].push("Ressources/skybox1/negy.png");
+	skyboxes[1].push("Ressources/skybox1/posy.png");
+	skyboxes[1].push("Ressources/skybox1/posz.png");
+	skyboxes[1].push("Ressources/skybox1/negz.png");
+
+	return skyboxes;
+}
+
 //Initialisation of the scene
 function Scene_initScene() {
 	fullTimeMilliseconds = 0;
@@ -24,6 +48,9 @@ function Scene_initScene() {
 	for(i = 0; i < toDraw.length; i++) {
 		updater.init(toDraw[i]);
 	}
+
+	var skyboxes = initSkyboxesReferences();
+	skybox = new Skybox("Skybox 0", skyboxes);
 }
 
 function Scene_drawScene(deltaTime) {
@@ -86,6 +113,9 @@ function Scene_drawScene(deltaTime) {
 		updater.update(toDraw[i]);
 		toDraw[i].draw(absoluteMatrix, prg);
 	}
+
+	glContext.useProgram(progSkybox);
+	skybox.draw(absoluteMatrix);
 }
 
 function Scene_updateScene(deltaTime) {
