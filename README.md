@@ -2,8 +2,6 @@
 
 A repository to store and improve exercises for Stephane Gobron's WebGL courses.
 
-A good praactice would be to gently migrate to a more ES6 syntax.
-
 ## conventions
 
 Files added should be named : YOURNAME_CHX, with X the number of the chapter.
