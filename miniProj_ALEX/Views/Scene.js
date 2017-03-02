@@ -49,8 +49,8 @@ function Scene_initScene() {
 		updater.init(toDraw[i]);
 	}
 
-	var skyboxes = initSkyboxesReferences();
-	skybox = new Skybox("Skybox 0", skyboxes);
+	//var skyboxes = initSkyboxesReferences();
+	//skybox = new Skybox("Skybox 0", skyboxes);
 }
 
 function Scene_drawScene(deltaTime) {
@@ -115,7 +115,7 @@ function Scene_drawScene(deltaTime) {
 	}
 
 	glContext.useProgram(progSkybox);
-	skybox.draw(absoluteMatrix);
+	//skybox.draw(absoluteMatrix);
 }
 
 function Scene_updateScene(deltaTime) {

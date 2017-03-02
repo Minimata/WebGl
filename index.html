@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+
+    <script src="miniProj_ALEX/Tools/jquery-3.1.0.min.js"></script>
+    <script src="miniProj_ALEX/Tools/gl-matrix-min.js"></script>
+    <script src="miniProj_ALEX/Tools/debug/webgl-debug.js"></script>
+    <script src="miniProj_ALEX/Tools/webglTools.js"></script>
+    <script src="miniProj_ALEX/Tools/Camera.js"></script>
+    <script src="miniProj_ALEX/Tools/skybox-loader.js"></script>
+    <script src="miniProj_ALEX/Tools/skybox.js"></script>
+
+    <script src="miniProj_ALEX/InputHandling/KeyboardHandling.js"></script>
+    <script src="miniProj_ALEX/InputHandling/mouseMotionHandling.js"></script>
+
+    <script src="miniProj_ALEX/Views/Scene.js"></script>
+    <script src="miniProj_ALEX/Controllers/Controller.js"></script>
+
+    <script src="miniProj_ALEX/Objects/Datas/Drawable.js"></script>
+    <script src="miniProj_ALEX/Objects/Datas/Quad.js"></script>
+    <script src="miniProj_ALEX/Objects/Interfaces/DrawableInterface.js"></script>
+    <script src="miniProj_ALEX/Objects/Interfaces/QuadInterface.js"></script>
+
+    <script id="preprocess-vs" type="x-shader/x-vertex">
+
+#extension GL_EXT_draw_buffers : require
+
+//Quad attributes
+attribute vec3 aVertexPosition;
+attribute vec4 aColor;
+
+//Projection and world rendering
+uniform mat4 uPMatrix;
+uniform mat4 uMVMatrix;
+
+//Values sent to frag
+varying vec3 vVertexPos;
+varying vec4 vColor;
+
+void main(void) {
+    //Setting the values sent to frag
+    vColor = aColor;
+    vVertexPos = aVertexPosition;
+
+    //Rendering final positions of vertices in world
+    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+}
+    </script>
+
+
+    <script id="preprocess-fs" type="x-shader/x-fragment">
+
+#extension GL_EXT_draw_buffers : require
+
+#ifdef GL_ES
+    precision highp float;
+#endif
+
+#define PI 3.14159265358979323846264338327950288419716939937510
+#define G 9.81
+#define E 2.71828182845904523536028747135266249775724709369995
+#define DEPTH 100.0
+#define NUM_WAVES 7
+
+//Getting variables from vertex shader
+varying vec4 vColor;
+varying vec3 vVertexPos;
+
+//Getting timestamps
+uniform float uDeltaTime;
+uniform float uFullTime;
+
+
+//Defining a wave
+struct Wave {
+    //arguments for position function
+    vec2 position;
+    vec2 center;
+    vec2 stretch;
+
+    //arguments for wave function
+    float revolvingColor;
+    float frequency;
+    float amplitude;
+    float speed;
+};
+
+
+//Colorful simple waves
+float addValueWithLimit(float inputValue, float offset, float min, float max, float factorFirst, float factorSecond) {
+    float newVal = factorFirst * inputValue + factorSecond * offset / (factorFirst + factorSecond);
+    if(newVal > max) {
+        newVal = max;
+    }
+    else if(newVal < min) {
+        newVal = min;
+    }
+    return newVal;
+}
+
+float f_circular(vec2 val, vec2 center, vec2 stretch) {
+    float xValue = (val.x - center.x);
+    float yValue = (val.y - center.y);
+
+    return sqrt(stretch.x*pow(xValue, 2.0) + stretch.y*pow(yValue, 2.0));
+}
+
+float wave(float initValue, float pos, float frequency, float amplitude, float speed) {
+    float pulsation = 2.0*PI*frequency;
+    float valueToAdd = amplitude*sin(radians(pulsation*pos + speed*uFullTime));
+
+    return addValueWithLimit(initValue, valueToAdd, 0.0, 1.0, 1.0, 1.0);
+}
+
+float getValueFromWave(Wave w, float aFactor, float fFactor, float oFactor, float sFactor) {
+    float tmpPos = f_circular(w.position, w.center, w.stretch);
+    return wave(w.revolvingColor, tmpPos, fFactor*w.frequency, aFactor*w.amplitude, sFactor*w.speed);
+}
+
+float tanh(float seed) {
+    return (pow(E, 2.0*seed) - 1.0)/(pow(E, 2.0*seed) + 1.0);
+}
+
+//Gerstner waves
+struct GerstnerWave {
+    vec2 direction;
+    float amplitude;
+    float steepness;
+    float speed;
+    float relativeHeight;
+    float frequency;
+};
+
+struct Surface {
+    vec3 pos;
+    vec3 norm1;
+    vec3 norm2;
+};
+
+
+
+
+Surface gerstnerWave(vec3 inputVector, GerstnerWave wave) {
+
+    vec2 dir = normalize(wave.direction);
+    vec2 wavenumber = 0.4435*wave.steepness*dir;
+
+    float km = (sqrt(pow(wavenumber.x, 2.0) + pow(wavenumber.y, 2.0)));
+    float wm = sqrt(G*km/**tanh(km*DEPTH)*/);
+    float theta = wave.frequency*(wavenumber.x*inputVector.x + wavenumber.y*inputVector.y) - wave.speed*wm*uFullTime;
+
+    vec3 newVector = inputVector;
+    newVector.x = (wavenumber.x * wave.amplitude * sin(theta))/* / (km*tanh(km * DEPTH))*/;
+    newVector.y = (wavenumber.y * wave.amplitude * sin(theta))/* / (km* tanh(km * DEPTH))*/;
+    newVector.z = wave.amplitude * cos(theta);
+    newVector.z = (newVector.z + wave.amplitude) / 2.0;
+
+
+    vec3 norm1 = vec3(  (pow(wavenumber.x, 2.0) * wave.amplitude * cos(theta))/* / (km* tanh(km*DEPTH))*/,
+                        (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta))/* / (km* tanh(km * DEPTH))*/,
+                        (wavenumber.x * wave.amplitude * sin(theta)));
+
+    vec3 norm2 = vec3(  (wavenumber.x * wavenumber.y * wave.amplitude * cos(theta))/* / (km* tanh(km*DEPTH))*/,
+                        (pow(wavenumber.y, 2.0) * wave.amplitude * cos(theta))/* / (km* tanh(km * DEPTH))*/,
+                        (wavenumber.y * wave.amplitude * sin(theta)));
+
+    return Surface(newVector, norm1, norm2);
+}
+
+void main(void) {
+
+    //sky
+    vec2 uv = vVertexPos.xy;
+    vec3 dir = normalize(vec3(uv.xy,-2.0)); dir.z += length(uv) * 0.15;
+
+    //Common color waves
+    vec4 color = vColor;
+    float valueAtI;
+    float commonFrequencyFactor = 2.0;
+    float commonAmplitudeFactor = 1.8;
+    float commonOffsetFactor = 1.0;
+    float commonSpeedFactor = 0.5;
+    float commonStretchFactor = 0.01;
+    float commonCenterFactor = 100.0;
+
+    Wave allWaves[NUM_WAVES];
+    allWaves[0] = Wave(vVertexPos.xy, commonCenterFactor * vec2(4.0, 7.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 5.0, commonAmplitudeFactor * 0.6, commonSpeedFactor * 100.0);
+    allWaves[1] = Wave(vVertexPos.xy, commonCenterFactor * vec2(4.0, 3.0), commonStretchFactor*vec2(0.005, 0.01), vColor[0], commonFrequencyFactor * 7.0, commonAmplitudeFactor * 0.5, commonSpeedFactor * 150.0);
+    allWaves[2] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, 0.0), commonStretchFactor*vec2(0.005, 0.05), vColor[0], commonFrequencyFactor * 6.0, commonAmplitudeFactor * 0.3, commonSpeedFactor * 70.0);
+    allWaves[3] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, -5.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
+    allWaves[4] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-2.0, 7.0), commonStretchFactor*vec2(0.02, 0.02), vColor[0], commonFrequencyFactor * 8.0, commonAmplitudeFactor * 0.15, commonSpeedFactor * 0.0);
+    allWaves[5] = Wave(vVertexPos.xy, commonCenterFactor * vec2(-5.0, 4.0), commonStretchFactor*vec2(0.01, 0.01), vColor[0], commonFrequencyFactor * 10.0, commonAmplitudeFactor * 0.1, commonSpeedFactor * 50.0);
+    allWaves[6] = Wave(vVertexPos.xy, commonCenterFactor * vec2(0.0, 0.0), commonStretchFactor*vec2(0.001, 0.001), vColor[0], commonFrequencyFactor * 1.0, commonAmplitudeFactor * 0.2, commonSpeedFactor * 30.0);
+
+    for(int i = 1; i < 3; i++) {
+        valueAtI = 0.0;
+
+        for(int j = 0; j < NUM_WAVES; j++){
+            allWaves[j].revolvingColor = vColor[i];
+            valueAtI += getValueFromWave(allWaves[j], commonAmplitudeFactor, commonFrequencyFactor, commonOffsetFactor, commonSpeedFactor);
+        }
+        color[i] = valueAtI / float(NUM_WAVES);
+    }
+
+    //Gerstner displaced waves
+    float ampFactor = 1.0; //between 0.0 and 2.0
+    float steepFactor = 0.8; // between 0.0 and 1.0
+	float speedFactor = 2.0; //whatever
+	float heightFactor = 1.0; //whatever
+	float frequencyFactor = 150.0; //whatever
+
+#define NUM_GERS_WAVES 17
+    GerstnerWave allGersWaves[NUM_GERS_WAVES];
+    allGersWaves[0] = GerstnerWave(vec2(-1, 1), ampFactor, 0.5*steepFactor, speedFactor, heightFactor, frequencyFactor);
+    allGersWaves[1] = GerstnerWave(vec2(1, 1), 1.2*ampFactor, 0.7*steepFactor, 0.7*speedFactor, 1.2*heightFactor, 0.4*frequencyFactor);
+    allGersWaves[2] = GerstnerWave(vec2(0.5, 1), 0.5*ampFactor, 0.5*steepFactor, 0.7*speedFactor, 1.5*heightFactor, 1.2*frequencyFactor);
+    allGersWaves[3] = GerstnerWave(vec2(-2, 1), 1.2*ampFactor, 0.7*steepFactor, 0.1*speedFactor, 1.0*heightFactor, 0.7*frequencyFactor);
+    allGersWaves[4] = GerstnerWave(vec2(5, 1), 1.5*ampFactor, 0.3*steepFactor, 0.5*speedFactor, 0.2*heightFactor, 1.5*frequencyFactor);
+    allGersWaves[5] = GerstnerWave(vec2(-1, -3), 0.1*ampFactor, 0.8*steepFactor, 2.5*speedFactor, 0.1*heightFactor, 2.0*frequencyFactor);
+    allGersWaves[6] = GerstnerWave(vec2(1, -2), 0.15*ampFactor, 0.7*steepFactor, 2.0*speedFactor, 0.1*heightFactor, 2.5*frequencyFactor);
+    allGersWaves[7] = GerstnerWave(vec2(1, 10), 0.1*ampFactor, 1.0*steepFactor, 2.7*speedFactor, 0.1*heightFactor, 2.7*frequencyFactor);
+    allGersWaves[8] = GerstnerWave(vec2(-1, -1), 0.2*ampFactor, 0.3*steepFactor, 2.3*speedFactor, 0.2*heightFactor, 1.9*frequencyFactor);
+    allGersWaves[9] = GerstnerWave(vec2(2, 8), 0.17*ampFactor, 0.1*steepFactor, 4.0*speedFactor, 0.25*heightFactor, 1.7*frequencyFactor);
+    allGersWaves[10] = GerstnerWave(vec2(0.2, -3), 1.5*ampFactor, 0.2*steepFactor, 0.2*speedFactor, 1.0*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[11] = GerstnerWave(vec2(-7, 4), 1.3*ampFactor, 0.3*steepFactor, 0.4*speedFactor, 0.8*heightFactor, 1.1*frequencyFactor);
+    allGersWaves[12] = GerstnerWave(vec2(-3, -4), 0.8*ampFactor, 0.7*steepFactor, 0.8*speedFactor, 1.4*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[13] = GerstnerWave(vec2(1, -3), 0.1*ampFactor, 0.1*steepFactor, 1.3*speedFactor, 1.3*heightFactor, 0.2*frequencyFactor);
+    allGersWaves[14] = GerstnerWave(vec2(-10, 14), 0.7*ampFactor, 0.1*steepFactor, 0.6*speedFactor, 1.7*heightFactor, 0.3*frequencyFactor);
+    allGersWaves[15] = GerstnerWave(vec2(10, 1), 1.2*ampFactor, 0.5*steepFactor, 0.9*speedFactor, 1.2*heightFactor, 0.5*frequencyFactor);
+    allGersWaves[16] = GerstnerWave(vec2(0, -1), 1.2*ampFactor, 0.8*steepFactor, 0.5*speedFactor, 2.0*heightFactor, 0.1*frequencyFactor);
+    float maxWaveHeight = 2.0*heightFactor;
+
+    vec3 tmpPos = vec3(0.0);
+    vec3 tmpNorm1 = vec3(0.0);
+    vec3 tmpNorm2 = vec3(0.0);
+    for(int i = 0; i < NUM_GERS_WAVES; i++){
+        Surface s = gerstnerWave(vVertexPos, allGersWaves[i]);
+        tmpPos.xy += s.pos.xy;
+        tmpPos.z += allGersWaves[i].relativeHeight*s.pos.z;
+        tmpNorm1 += s.norm1;
+        tmpNorm2 += s.norm2;
+    }
+
+    //Creating height map
+    tmpPos.z = tmpPos.z / (maxWaveHeight*float(NUM_GERS_WAVES));
+
+    //Creating normal map
+    vec3 normal1 = vec3(1.0 - tmpNorm1.x, -tmpNorm1.y, -tmpNorm1.z);
+    vec3 normal2 = vec3(-tmpNorm2.x, 1.0 - tmpNorm2.y, -tmpNorm2.z);
+    vec3 normal = -normalize(cross(normal2, normal1));
+
+    vec4 ambientMap = color;
+    ambientMap.a = tmpPos.z; //heightMap in ambiantColor
+	vec4 normalMap = normalize(vec4(vec3(normal.x + 0.5, normal.y + 0.5, normal.z), 1.0));
+
+    gl_FragData[0] = ambientMap;
+    gl_FragData[1] = normalMap;
+}
+    </script>
+
+    <!-- vertex shader -->
+    <script id="shader-vs" type="x-shader/x-vertex">
+
+#extension GL_EXT_draw_buffers : require
+
+//Quad attributes
+attribute vec3 aVertexPosition;
+attribute vec4 aColor;
+attribute vec2 aTextureCoord;
+
+//Projection and world rendering
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
+
+//Values sent to frag
+varying vec3 vVertexPos;
+varying vec4 vColor;
+varying vec2 vTextureCoord;
+varying vec3 cameraSpacePosition;
+
+void main(void) {
+    //Setting the values sent to frag
+    vColor = aColor;
+    vVertexPos = aVertexPosition;
+    vTextureCoord = aTextureCoord;
+    mat3 rotMat = mat3(uMVMatrix);
+    vec3 d = vec3(uMVMatrix[3]);
+    cameraSpacePosition = -d * rotMat;
+
+    //Rendering final positions of vertices in world
+    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+}
+    </script>
+
+
+    <!-- fragment shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+
+#extension GL_EXT_draw_buffers : require
+
+#ifdef GL_ES
+    precision highp float;
+#endif
+
+#define ITERATIONS_PARALLAX 20
+
+#define DEPTH_OF_VIEW 0.5
+#define CAMERA_TO_TEXTURE_SPACE 32.0
+
+#define WAVE_AMPLITUDE 0.5
+#define PARALLAX_AMPLITUDE 1.0
+#define WATER_REFRACTION_FACTOR 1.33
+#define REFRACTION_FACTOR 1.1
+
+#define PI 3.14159265358979323846264338327950288419716939937510
+
+uniform sampler2D uAmbientMapSampler;
+uniform sampler2D uNormalMapSampler;
+//uniform sampler2D uHeightMapSampler;
+//uniform sampler2D uDiffuseMapSampler;
+//uniform sampler2D uRelNormalMapSampler;
+//uniform sampler2D uDepthSampler;
+
+//Getting variables from vertex shader
+varying vec4 vColor;
+varying vec3 vVertexPos;
+varying vec2 vTextureCoord;
+varying vec3 cameraSpacePosition;
+
+//Render attributes
+vec3 uDirectionalLight = normalize(vec3(1.0, 1.0, 1.0));
+float uDepthOfView = 100.0;
+
+float angleWithGround(vec3 vector) {
+    vec3 normal = vec3(0, 0, 1);
+    return asin(abs(dot(normal, vector))/(length(vector)));
+}
+
+void main(void) {
+    float waveAmplitude = 1.0;
+    vec2 point = vTextureCoord;
+
+    vec4 ambientColor = texture2D(uAmbientMapSampler, point);
+
+    float height = WAVE_AMPLITUDE * ambientColor.a;
+    vec3 camPos = cameraSpacePosition / CAMERA_TO_TEXTURE_SPACE;
+    vec3 pointToCam = vec3(vec2(camPos.xy - 2.0 * vec2(point.x - 0.5, point.y - 0.5)), (camPos.z - height));
+
+    //PARALLAX
+    vec3 PTC = normalize(pointToCam);
+    vec2 PTCProj = PTC.xy;
+
+    for(int i = 0; i < ITERATIONS_PARALLAX; i++) {
+        PTC += PTC * (PARALLAX_AMPLITUDE * WAVE_AMPLITUDE * texture2D(uAmbientMapSampler, point + PTCProj).a - PTC.z);
+        PTCProj = PTC.xy;
+    }
+    point += PTCProj;
+
+
+    ambientColor = texture2D(uAmbientMapSampler, point);
+    vec4 normalColor = texture2D(uNormalMapSampler, point);
+
+    //Getting back heightMap
+    height = WAVE_AMPLITUDE * ambientColor.a;
+    vec4 heightColor = vec4(vec3(height), 1.0);
+
+    //Calculating diffuseMap based on normals
+    vec3 normal = vec3(normalColor.x - 0.5, normalColor.y - 0.5, normalColor.z);
+    vec3 antiLight = vec3(  uDirectionalLight.x * uDirectionalLight.z,
+                            uDirectionalLight.y * uDirectionalLight.z,
+                            sqrt(pow(uDirectionalLight.x, 2.0) + pow(uDirectionalLight.y, 2.0)));
+    vec4 diffuseColor1 = vec4(ambientColor.xyz*dot(normal, uDirectionalLight) / (length(normal) * length(uDirectionalLight)), 1.0);
+    vec4 diffuseColor2 = vec4(ambientColor.xyz*dot(normal, antiLight) / (length(normal) * length(antiLight)), 1.0);
+    float factor1 = 1.0;
+    float factor2 = 1.0;
+    vec4 diffuseColor = (factor1 * diffuseColor1 + factor2 * diffuseColor2) / (factor1 + factor2);
+
+    //Calculating depthmap
+//    vec4 PTCColor = vec4(normalize(pointToCam), 1.0);
+    float depth = -length(pointToCam) / DEPTH_OF_VIEW + 1.0;
+    vec4 depthColor = vec4(vec3(depth), 1.0);
+
+    //Calculating angles of relativeNormalMap;
+    float thetaN = angleWithGround(normal);
+    float thetaP = angleWithGround(pointToCam);
+    float theta = abs(thetaN - thetaP);
+    float thetaRefracted = asin(1.0 / (REFRACTION_FACTOR*WATER_REFRACTION_FACTOR) * sin(theta));
+    vec4 thetaColor = vec4(vec3(theta / PI), 1.0);
+
+    //fresnel equations
+    vec3 tmpColor = diffuseColor.xyz;
+    float R = pow((sin(theta - thetaRefracted)/sin(theta + thetaRefracted)), 2.0) + pow((tan(theta - thetaRefracted)/tan(theta + thetaRefracted)), 2.0);
+    float P = 1.0 - R;
+    tmpColor += vec3(R);
+    vec4 reflectiveColor = vec4(tmpColor, 1.0);
+
+    gl_FragColor = reflectiveColor;
+}
+    </script>
+
+    <!-- vertex shader for skybox -->
+    <script type="x-shader/x-vertex" id="shader-vs-skybox">
+			 uniform mat4 uPMatrix;
+			 uniform mat4 uMVMatrix;
+			 attribute vec3 aCoords;
+			 varying vec3 vCoords;
+			 void main() {
+				vec4 eyeCoords = uMVMatrix * vec4(aCoords,1.0);
+				vCoords = aCoords;
+				gl_Position = uPMatrix * eyeCoords;
+
+			 }
+		</script>
+
+    <!-- fragment shader fox skybox -->
+    <script type="x-shader/x-fragment" id="shader-fs-skybox">
+			 precision mediump float;
+			 varying vec3 vCoords;
+			 uniform samplerCube uSkybox1;
+			 uniform samplerCube uSkybox2;
+			 void main() {
+				  vec4 color1 = textureCube(uSkybox1, vCoords);
+				  vec4 color2 = textureCube(uSkybox2, vCoords);
+				  gl_FragColor = color2;
+			 }
+		</script>
+</head>
+<body>
+
+<!-- webgl canvas -->
+<canvas id="webgl-canvas" width="1280" height="800">
+    HTML5 is not supported
+</canvas>
+</body>
+</html>

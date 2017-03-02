@@ -8,12 +8,25 @@
     <script src="js/webglTools.js"></script>
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;uniform mat4 uMVMatrix;uniform mat4 uPMatrix;varying vec3 pos;varying vec3 color;void main(void){color=vec3((aVertexPosition.x+1.)/2.,(aVertexPosition.y+1.)/2.,0.67868);pos=aVertexPosition;gl_Position=uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);}
+
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
 	#ifdef GL_ES
 	precision highp float;
 	#endif
-	varying vec3 pos;varying vec3 color;void main(void){float x=0.5*(pos.x+1.0);float y=0.5*(pos.y+1.0);if ((mod(5.0*x, 1.0) < 0.5) ^^ (mod(5.0*y, 1.0) < 0.5)){gl_FragColor=vec4(1.0, 1.0, 1.0, 1.0);}else{gl_FragColor=vec4(0.0, 0.0, 0.0, 1.0);}}
+	varying vec3 pos;
+	varying vec3 color;
+	void main(void){
+        float x=0.5*(pos.x+1.0);
+        float y=0.5*(pos.y+1.0);
+        if ((mod(5.0*x, 1.0) < 0.5) ^^ (mod(5.0*y, 1.0) < 0.5)){
+            gl_FragColor=vec4(1.0, 1.0, 1.0, 1.0);
+        }
+        else {
+            gl_FragColor=vec4(0.0, 0.0, 0.0, 1.0);
+        }
+	}
+
     </script>
     <script>var vertexBuffer = null;
     var indexBuffer = null;
